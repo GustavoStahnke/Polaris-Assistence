@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { apiNotFound } from '../lib/http';
 import { backupsRouter } from './backups';
 import { healthRouter } from './health';
+import { integrationsRouter } from './integrations';
+import { newsRouter } from './news';
 import { settingsRouter } from './settings';
 import { systemRouter } from './system';
 
@@ -12,6 +14,8 @@ export function createApiRouter() {
   api.use('/settings', settingsRouter);
   api.use('/backups', backupsRouter);
   api.use('/system', systemRouter);
+  api.use('/integrations', integrationsRouter);
+  api.use('/news', newsRouter);
   api.use(apiNotFound);
   return api;
 }
