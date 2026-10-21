@@ -655,7 +655,7 @@ Todas as tabelas têm `id` (UUID em texto), `created_at` e `updated_at` (ISO 860
 - [x] Etapa 2 — Banco de dados
 - [x] Etapa 3 — Hub de Integrações
 - [x] Etapa 4 — Academia
-- [ ] Etapa 5 — Biblioteca
+- [x] Etapa 5 — Biblioteca
 - [ ] Etapa 6 — Clima e Notícias
 - [ ] Etapa 7 — Notas, tarefas, lembretes e hábitos
 - [ ] Etapa 8 — Google (Agenda e Gmail)

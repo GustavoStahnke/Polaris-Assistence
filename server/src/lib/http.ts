@@ -26,6 +26,16 @@ export function parseInput<T>(schema: ZodType<T>, data: unknown): T {
   return result.data;
 }
 
+/**
+ * Valida uma atualização parcial (PATCH). Mantém só os campos que vieram na requisição:
+ * no zod 4, `.partial()` ainda preenche valores padrão, o que apagaria dados sem querer.
+ */
+export function parsePatch<T extends Record<string, unknown>>(schema: ZodType<T>, data: unknown): Partial<T> {
+  const parsed = parseInput(schema, data);
+  const provided = data && typeof data === 'object' ? Object.keys(data) : [];
+  return Object.fromEntries(Object.entries(parsed).filter(([key]) => provided.includes(key))) as Partial<T>;
+}
+
 /** Responde 404 em JSON para rotas /api que não existem. */
 export const apiNotFound: RequestHandler = (_req, res) => {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Rota da API não encontrada.' } });

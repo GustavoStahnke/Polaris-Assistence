@@ -1,5 +1,5 @@
 import { newsFeedInputSchema, type NewsFeed } from '@polaris/shared';
-import { badRequest, notFound, parseInput } from '../lib/http';
+import { badRequest, notFound, parseInput, parsePatch } from '../lib/http';
 import { clearCachePrefix } from '../repositories/cacheRepository';
 import * as newsRepository from '../repositories/newsRepository';
 import { validateFeedUrl } from './integrationService';
@@ -20,7 +20,7 @@ export async function addFeed(input: unknown): Promise<NewsFeed> {
 }
 
 export function updateFeed(id: string, input: unknown): NewsFeed {
-  const patch = parseInput(newsFeedInputSchema.partial(), input);
+  const patch = parsePatch(newsFeedInputSchema.partial(), input);
   const feed = newsRepository.updateFeed(id, patch);
   if (!feed) throw notFound('Feed não encontrado.');
   clearCachePrefix('news:');

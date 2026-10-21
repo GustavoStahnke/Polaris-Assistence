@@ -30,9 +30,15 @@ export const router = createBrowserRouter([
         lazy: async () => ({ Component: (await import('../modules/clima/ClimaPage')).ClimaPage }),
       },
       {
-        path: 'biblioteca/*',
+        path: 'biblioteca',
         lazy: async () => ({
           Component: (await import('../modules/biblioteca/BibliotecaPage')).BibliotecaPage,
+        }),
+      },
+      {
+        path: 'biblioteca/livro/:bookId',
+        lazy: async () => ({
+          Component: (await import('../modules/biblioteca/BookDetailPage')).BookDetailPage,
         }),
       },
       {

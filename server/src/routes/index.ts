@@ -4,6 +4,7 @@ import { backupsRouter } from './backups';
 import { gymRouter } from './gym';
 import { healthRouter } from './health';
 import { integrationsRouter } from './integrations';
+import { libraryRouter } from './library';
 import { newsRouter } from './news';
 import { settingsRouter } from './settings';
 import { systemRouter } from './system';
@@ -18,6 +19,7 @@ export function createApiRouter() {
   api.use('/integrations', integrationsRouter);
   api.use('/news', newsRouter);
   api.use('/gym', gymRouter);
+  api.use('/library', libraryRouter);
   api.use(apiNotFound);
   return api;
 }

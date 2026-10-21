@@ -17,7 +17,7 @@ import {
   type TodayWorkout,
   type WorkoutSession,
 } from '@polaris/shared';
-import { badRequest, notFound, parseInput } from '../lib/http';
+import { badRequest, notFound, parseInput, parsePatch } from '../lib/http';
 import * as repo from '../repositories/gymRepository';
 import { autoMarkHabit } from './habitService';
 
@@ -30,7 +30,7 @@ export function createExercise(input: unknown) {
 }
 
 export function updateExercise(id: string, input: unknown) {
-  const exercise = repo.updateExercise(id, parseInput(exerciseInputSchema.partial(), input));
+  const exercise = repo.updateExercise(id, parsePatch(exerciseInputSchema.partial(), input));
   if (!exercise) throw notFound('Exercício não encontrado.');
   return exercise;
 }

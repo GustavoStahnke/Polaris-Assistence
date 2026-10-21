@@ -11,6 +11,7 @@ import {
 import { z } from 'zod';
 import { describeError } from '../integrations/http';
 import { bookSearchSource, subjectSource } from '../integrations/open-library';
+import { downloadCover, fetchWorkDescription } from '../integrations/open-library/api';
 import { searchCities as searchCityApi } from '../integrations/open-meteo/api';
 import { weatherSource } from '../integrations/open-meteo';
 import { findIntegration, INTEGRATIONS } from '../integrations/registry';
@@ -488,3 +489,35 @@ export async function searchCities(query: string): Promise<CityLocation[]> {
 
 /** Valida um endereço de feed RSS antes de salvar. */
 export const validateFeedUrl = (url: string): Promise<NewsFeedValidation> => validateFeed(url);
+
+/** true se a integração está disponível, ativa e configurada. */
+function isUsable(id: string): boolean {
+  const definition = findIntegration(id);
+  if (!definition) return false;
+  const view = toView(definition);
+  return view.enabled && view.configured;
+}
+
+/** Baixa a imagem de uma capa pela Open Library (null se não der). */
+export async function fetchBookCover(url: string): Promise<Buffer | null> {
+  if (!isUsable('open-library')) return null;
+  try {
+    return await downloadCover(url);
+  } catch (error) {
+    log('open-library', 'warning', 'cover', `Não foi possível baixar a capa: ${describeError(error)}`);
+    return null;
+  }
+}
+
+/** Sinopse de uma obra na Open Library (cache de 30 dias; null se não houver). */
+export async function fetchBookDescription(workKey: string): Promise<string | null> {
+  if (!isUsable('open-library')) return null;
+  try {
+    const result = await getOrFetch(`books:work:${workKey}`, 30 * 24 * 60, () =>
+      fetchWorkDescription(workKey),
+    );
+    return result.data;
+  } catch {
+    return null;
+  }
+}
