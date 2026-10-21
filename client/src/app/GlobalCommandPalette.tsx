@@ -1,7 +1,17 @@
 import type { SearchResult, SearchResultType } from '@polaris/shared';
 import { useQuery } from '@tanstack/react-query';
 import type { LucideIcon } from 'lucide-react';
-import { Bell, BookOpen, BookOpenCheck, Dumbbell, ListTodo, Play, RefreshCw, StickyNote } from 'lucide-react';
+import {
+  Bell,
+  BookOpen,
+  BookOpenCheck,
+  Dumbbell,
+  ListTodo,
+  MessageCircle,
+  Play,
+  RefreshCw,
+  StickyNote,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CommandPalette, type PaletteCommand } from '../components/ui/CommandPalette';
@@ -31,6 +41,7 @@ const RESULT_LABELS: Record<SearchResultType, string> = {
 export function GlobalCommandPalette() {
   const navigate = useNavigate();
   const setQuickAction = useUiStore((s) => s.setQuickAction);
+  const setChatOpen = useUiStore((s) => s.setChatOpen);
   const today = useTodayWorkout();
   const { begin } = useBeginWorkout();
   const syncAll = useSyncAll();
@@ -52,6 +63,14 @@ export function GlobalCommandPalette() {
     const active = today.data?.activeSession;
     const planned = today.data?.planned[0];
     const actions: PaletteCommand[] = [
+      {
+        id: 'act:chat',
+        label: 'Falar com a Polaris',
+        group: 'Ações rápidas',
+        icon: MessageCircle,
+        keywords: 'ia chat conversar perguntar canal',
+        run: () => setChatOpen(true),
+      },
       {
         id: 'act:note',
         label: 'Nova nota',
@@ -111,7 +130,7 @@ export function GlobalCommandPalette() {
       run: () => navigate(item.path),
     }));
     return [...actions, ...navigation];
-  }, [navigate, setQuickAction, today.data, begin, syncAll]);
+  }, [navigate, setQuickAction, setChatOpen, today.data, begin, syncAll]);
 
   const extra = useMemo<PaletteCommand[]>(
     () =>

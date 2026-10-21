@@ -16,6 +16,9 @@ interface UiState {
   setNucleusState: (state: NucleusState) => void;
   quickAction: QuickAction;
   setQuickAction: (action: QuickAction) => void;
+  /** Gaveta do Canal Polaris (conversa com a IA). */
+  chatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -27,6 +30,8 @@ export const useUiStore = create<UiState>((set) => ({
   setNucleusState: (nucleusState) => set({ nucleusState }),
   quickAction: null,
   setQuickAction: (quickAction) => set({ quickAction }),
+  chatOpen: false,
+  setChatOpen: (chatOpen) => set({ chatOpen }),
 }));
 
 interface AppearanceState {

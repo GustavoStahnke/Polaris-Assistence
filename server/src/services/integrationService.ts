@@ -15,6 +15,8 @@ import { completeAuthorization } from '../integrations/google/account';
 import { consumeAuthState, type GoogleAccountConfig, type GoogleTokens } from '../integrations/google/auth';
 import { eventsSource, listCalendars } from '../integrations/google/calendar';
 import { emailsSource } from '../integrations/google/gmail';
+import { chat, listModels, type ChatMessage } from '../integrations/ollama/api';
+import type { OllamaConfig } from '../integrations/ollama';
 import { downloadCover, fetchWorkDescription } from '../integrations/open-library/api';
 import { searchCities as searchCityApi } from '../integrations/open-meteo/api';
 import { weatherSource } from '../integrations/open-meteo';
@@ -592,3 +594,61 @@ export const getImportantEmails = (options?: { force?: boolean }) =>
 
 /** Calendários da conta (para escolher quais aparecem). */
 export const listGoogleCalendars = () => callIntegration('google-calendar', listCalendars);
+
+// ===== IA local (Ollama) =====
+
+/** Erro quando a IA não está conectada: a interface mostra "Conecte a IA em Integrações". */
+export class AiUnavailableError extends Error {
+  constructor() {
+    super('Conecte a IA em Integrações para usar este recurso.');
+  }
+}
+
+/** Situação da IA (para a interface decidir o que mostrar). */
+export function getAiStatus(): { available: boolean; model: string | null; message: string } {
+  const definition = requireDefinition('ollama');
+  const view = toView(definition);
+  const model = (readConfig(definition, stateOf(definition)) as OllamaConfig).model || null;
+  if (!view.enabled || !view.configured) {
+    return { available: false, model, message: 'Conecte a IA em Integrações para usar este recurso.' };
+  }
+  // Mesmo com erro recente, a IA continua "disponível": a próxima tentativa pode dar certo (ex.: Ollama reaberto).
+  if (view.status === 'erro')
+    return {
+      available: true,
+      model,
+      message: `Última tentativa falhou: ${view.lastError ?? 'sem resposta'}.`,
+    };
+  return { available: true, model, message: `IA local pronta (${model}).` };
+}
+
+/** Modelos instalados num endereço do Ollama (para a lista de escolha). */
+export async function listOllamaModels(url?: string) {
+  const definition = requireDefinition('ollama');
+  const config = readConfig(definition, stateOf(definition)) as OllamaConfig;
+  return listModels(url?.trim() || config.url);
+}
+
+/**
+ * Pergunta à IA local. Lança AiUnavailableError se ela não estiver conectada.
+ * Registra falhas no log da integração (sem quebrar quem chamou além do próprio erro).
+ */
+export async function askAI(
+  messages: ChatMessage[],
+  options: { temperature?: number; json?: boolean } = {},
+): Promise<{ content: string; model: string }> {
+  const definition = requireDefinition('ollama');
+  const view = toView(definition);
+  if (!view.enabled || !view.configured) throw new AiUnavailableError();
+  const config = readConfig(definition, stateOf(definition)) as OllamaConfig;
+  try {
+    const content = await chat(config.url, config.model, messages, options);
+    saveState('ollama', { lastSuccessAt: nowIso(), lastError: null, lastErrorAt: null });
+    return { content, model: config.model };
+  } catch (error) {
+    recordFailure('ollama', 'chat', error);
+    throw error;
+  }
+}
+
+export const isAiAvailable = () => getAiStatus().available;

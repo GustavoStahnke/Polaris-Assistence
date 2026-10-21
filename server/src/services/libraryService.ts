@@ -22,6 +22,7 @@ import { DATA_DIR } from '../config/paths';
 import { badRequest, notFound, parseInput, parsePatch } from '../lib/http';
 import * as repo from '../repositories/libraryRepository';
 import { getSetting, setSetting } from '../repositories/settingsRepository';
+import { explainRecommendations } from './aiRecommendationService';
 import { autoMarkHabit } from './habitService';
 import { fetchBookCover, fetchBookDescription, getBooksBySubject, searchBooks } from './integrationService';
 
@@ -388,8 +389,12 @@ export async function refreshRecommendations(): Promise<{ items: BookRecommendat
       score,
     })),
   );
+  const explained = await explainRecommendations(repo.listRecommendations());
   const items = repo.listRecommendations();
-  return { items, message: `${items.length} sugestões encontradas a partir dos seus livros favoritos.` };
+  return {
+    items,
+    message: `${items.length} sugestões encontradas a partir dos seus livros favoritos${explained ? ', com motivos escritos pela IA' : ''}.`,
+  };
 }
 
 export function dismissRecommendation(id: string): void {

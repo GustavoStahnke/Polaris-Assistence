@@ -7,6 +7,7 @@ import { Sidebar } from '../components/core/Sidebar';
 import { TopBar } from '../components/core/TopBar';
 import { Toaster } from '../components/ui/Toast';
 import { useIntegrations, useIsSyncing } from '../modules/integracoes/api';
+import { ChatDrawer } from '../modules/ia/ChatDrawer';
 import { ReminderWatcher } from '../modules/tarefas/ReminderWatcher';
 import { useAppearanceStore, useReducedMotion } from '../stores/uiStore';
 import { GlobalCommandPalette } from './GlobalCommandPalette';
@@ -53,6 +54,7 @@ export function Layout() {
       <GlobalCommandPalette />
       <QuickActions />
       <ReminderWatcher />
+      <ChatDrawer />
       <Toaster />
     </MotionConfig>
   );

@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { MessageCircle, Search } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router';
 import { NAV_ITEMS } from '../../app/navigation';
@@ -8,6 +8,7 @@ import { useUiStore } from '../../stores/uiStore';
 /** Barra lateral fina, só com ícones e tooltips (desktop). */
 export function Sidebar() {
   const setPaletteOpen = useUiStore((s) => s.setPaletteOpen);
+  const setChatOpen = useUiStore((s) => s.setChatOpen);
   return (
     <nav
       aria-label="Navegação principal"
@@ -15,6 +16,9 @@ export function Sidebar() {
     >
       <SidebarButton label="Buscar (Ctrl+K)" onClick={() => setPaletteOpen(true)}>
         <Search className="h-5 w-5" />
+      </SidebarButton>
+      <SidebarButton label="Canal Polaris" onClick={() => setChatOpen(true)}>
+        <MessageCircle className="h-5 w-5" />
       </SidebarButton>
       <div className="my-1 h-px w-8 bg-border/60" />
       {NAV_ITEMS.map((item) => (

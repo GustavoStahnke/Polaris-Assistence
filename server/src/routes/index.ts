@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { apiNotFound } from '../lib/http';
+import { aiRouter, briefingRouter } from './ai';
 import { alertsRouter } from './alerts';
 import { backupsRouter } from './backups';
 import { agendaRouter, emailRouter } from './google';
@@ -33,6 +34,8 @@ export function createApiRouter() {
   api.use('/search', searchRouter);
   api.use('/agenda', agendaRouter);
   api.use('/email', emailRouter);
+  api.use('/ai', aiRouter);
+  api.use('/briefing', briefingRouter);
   api.use(apiNotFound);
   return api;
 }

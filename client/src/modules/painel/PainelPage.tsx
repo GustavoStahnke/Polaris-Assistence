@@ -1,4 +1,6 @@
+import { MessageCircle } from 'lucide-react';
 import { Link } from 'react-router';
+import { PolarisCard } from '../../components/ui/PolarisCard';
 import { capitalize, formatLongDate, greeting } from '../../lib/format';
 import { useProfile } from '../../lib/hooks/useProfile';
 import { WorkoutTodayCard } from '../academia/WorkoutTodayCard';
@@ -7,6 +9,7 @@ import { CurrentReadingCard } from '../biblioteca/CurrentReadingCard';
 import { RememberCard } from '../biblioteca/RememberCard';
 import { WeatherCard } from '../clima/WeatherCard';
 import { EmailCard } from '../email/EmailCard';
+import { ChatPanel } from '../ia/ChatPanel';
 import { HabitsTodayCard } from '../habitos/HabitsTodayCard';
 import { NewsCard } from '../noticias/NewsCard';
 import { TasksTodayCard } from '../tarefas/TasksTodayCard';
@@ -41,7 +44,7 @@ export function PainelPage() {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <NucleusPanel summary="Seu briefing do dia aparece aqui." />
+          <NucleusPanel />
         </div>
         <WeatherCard index={0} className="lg:col-start-1 lg:row-start-1" />
         <AgendaCard index={1} className="lg:col-start-3 lg:row-start-1" />
@@ -52,6 +55,15 @@ export function PainelPage() {
         <HabitsTodayCard index={6} />
         <TasksTodayCard index={7} />
         <RememberCard index={8} />
+        <PolarisCard
+          index={9}
+          icon={MessageCircle}
+          label="Canal Polaris · Conversa"
+          title="Fale com a Polaris"
+          className="lg:col-span-3"
+        >
+          <ChatPanel />
+        </PolarisCard>
       </div>
     </div>
   );

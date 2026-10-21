@@ -1,4 +1,4 @@
-import { Ellipsis } from 'lucide-react';
+import { Ellipsis, MessageCircle } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router';
 import { NAV_ITEMS } from '../../app/navigation';
 import { cn } from '../../lib/cn';
@@ -7,7 +7,7 @@ import { Modal } from '../ui/Modal';
 
 /** Barra inferior do celular: Painel, Agenda, Livros, Treino e Mais. */
 export function MobileNav() {
-  const { moreOpen, setMoreOpen } = useUiStore();
+  const { moreOpen, setMoreOpen, setChatOpen } = useUiStore();
   const location = useLocation();
   const mainItems = NAV_ITEMS.filter((item) => item.mobile);
   const moreItems = NAV_ITEMS.filter((item) => !item.mobile);
@@ -51,6 +51,17 @@ export function MobileNav() {
 
       <Modal open={moreOpen} onClose={() => setMoreOpen(false)} title="Mais módulos">
         <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setMoreOpen(false);
+              setChatOpen(true);
+            }}
+            className="flex flex-col items-center gap-2 rounded-xl border border-primary/50 bg-primary/10 p-3 text-center text-xs text-star"
+          >
+            <MessageCircle className="h-5 w-5" aria-hidden />
+            Canal Polaris
+          </button>
           {moreItems.map((item) => (
             <NavLink
               key={item.path}

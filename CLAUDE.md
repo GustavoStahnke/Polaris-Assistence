@@ -659,7 +659,7 @@ Todas as tabelas têm `id` (UUID em texto), `created_at` e `updated_at` (ISO 860
 - [x] Etapa 6 — Clima e Notícias
 - [x] Etapa 7 — Notas, tarefas, lembretes e hábitos
 - [x] Etapa 8 — Google (Agenda e Gmail)
-- [ ] Etapa 9 — IA local (Ollama)
+- [x] Etapa 9 — IA local (Ollama)
 - [ ] Etapa 10 — Painel final, PWA e celular
 - [ ] Etapa 11 — Web (Supabase + Netlify)
 - [ ] Etapa 12 — Voz (Jarvis)

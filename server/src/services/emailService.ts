@@ -9,6 +9,7 @@ import {
 import { notFound, parseInput } from '../lib/http';
 import * as repo from '../repositories/emailRepository';
 import { clearCachePrefix } from '../repositories/cacheRepository';
+import { triageWithAI } from './aiTriageService';
 import { classifyEmail } from './emailTriageService';
 import { getImportantEmails } from './integrationService';
 
@@ -30,6 +31,8 @@ export async function getEmails(options?: { force?: boolean }): Promise<EmailRes
   const counts = Object.fromEntries(
     EMAIL_CATEGORIES.map((c) => [c, emails.filter((e) => e.category === c).length]),
   ) as Record<EmailCategory, number>;
+  // Com a IA conectada, os e-mails ainda "por regra" são reclassificados em segundo plano.
+  void triageWithAI(emails);
   return { state: hub.state, error: hub.error, fetchedAt: hub.fetchedAt, emails, counts };
 }
 
