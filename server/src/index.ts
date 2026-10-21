@@ -30,8 +30,12 @@ server.on('error', (err: NodeJS.ErrnoException) => {
   process.exit(1);
 });
 
-server.listen(env.port, env.host, () => {
-  const mode = env.isProduction ? 'produção' : 'desenvolvimento';
-  console.log(`✨ ${APP_NAME} online em http://localhost:${env.port} (${mode})`);
-  startJobs();
-});
+// 5. Escuta só neste PC (127.0.0.1), ou na rede local se o modo celular estiver ligado.
+const { listen } = await import('./serverControl');
+const { startupHost } = await import('./services/networkService');
+const host = startupHost(env.host);
+await listen(server, env.port, host);
+const mode = env.isProduction ? 'produção' : 'desenvolvimento';
+console.log(`✨ ${APP_NAME} online em http://localhost:${env.port} (${mode})`);
+if (host === '0.0.0.0') console.log('📱 Modo rede local ligado: outros aparelhos acessam com PIN.');
+startJobs();

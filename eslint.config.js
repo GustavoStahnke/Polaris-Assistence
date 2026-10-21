@@ -26,7 +26,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['server/**/*.ts', 'shared/**/*.ts', '*.js', 'client/vite.config.ts'],
+    files: [
+      'server/**/*.ts',
+      'shared/**/*.ts',
+      '*.js',
+      'client/vite.config.ts',
+      'client/pwa-assets.config.ts',
+    ],
     languageOptions: { globals: globals.node },
   },
   {

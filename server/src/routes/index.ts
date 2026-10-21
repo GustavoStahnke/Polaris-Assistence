@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { apiNotFound } from '../lib/http';
+import { lanGuard } from '../security/lanGuard';
 import { aiRouter, briefingRouter } from './ai';
 import { alertsRouter } from './alerts';
 import { backupsRouter } from './backups';
@@ -8,6 +9,7 @@ import { gymRouter } from './gym';
 import { healthRouter } from './health';
 import { integrationsRouter } from './integrations';
 import { libraryRouter } from './library';
+import { authRouter, networkRouter } from './network';
 import { newsRouter } from './news';
 import { habitsRouter, notesRouter, remindersRouter, searchRouter, tasksRouter } from './productivity';
 import { settingsRouter } from './settings';
@@ -17,7 +19,11 @@ import { weatherRouter } from './weather';
 /** Todas as rotas da API, montadas em /api. */
 export function createApiRouter() {
   const api = Router();
+  // Modo rede local: outros aparelhos precisam do PIN (o próprio PC passa direto).
+  api.use(lanGuard);
   api.use('/health', healthRouter);
+  api.use('/auth', authRouter);
+  api.use('/network', networkRouter);
   api.use('/settings', settingsRouter);
   api.use('/backups', backupsRouter);
   api.use('/system', systemRouter);

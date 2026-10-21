@@ -6,15 +6,25 @@ import { MobileNav } from '../components/core/MobileNav';
 import { Sidebar } from '../components/core/Sidebar';
 import { TopBar } from '../components/core/TopBar';
 import { Toaster } from '../components/ui/Toast';
-import { useIntegrations, useIsSyncing } from '../modules/integracoes/api';
 import { ChatDrawer } from '../modules/ia/ChatDrawer';
+import { useIntegrations, useIsSyncing } from '../modules/integracoes/api';
 import { ReminderWatcher } from '../modules/tarefas/ReminderWatcher';
 import { useAppearanceStore, useReducedMotion } from '../stores/uiStore';
+import { AuthGate } from './AuthGate';
 import { GlobalCommandPalette } from './GlobalCommandPalette';
 import { QuickActions } from './QuickActions';
 
-/** Estrutura de todas as páginas: fundo, barra superior, barra lateral e conteúdo. */
+/** Estrutura de todas as páginas. No celular (modo rede local), pede o PIN antes. */
 export function Layout() {
+  return (
+    <AuthGate>
+      <LayoutShell />
+    </AuthGate>
+  );
+}
+
+/** Fundo, barra superior, barra lateral, conteúdo e os componentes globais. */
+function LayoutShell() {
   const location = useLocation();
   const glow = useAppearanceStore((s) => s.glow);
   const animations = useAppearanceStore((s) => s.animations);

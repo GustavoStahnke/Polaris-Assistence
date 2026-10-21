@@ -9,6 +9,7 @@ export * from './schemas/gym';
 export * from './schemas/google';
 export * from './schemas/health';
 export * from './schemas/integrations';
+export * from './schemas/network';
 export * from './schemas/news';
 export * from './schemas/productivity';
 export * from './schemas/settings';

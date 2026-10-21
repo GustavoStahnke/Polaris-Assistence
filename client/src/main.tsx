@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router/dom';
 import { Providers } from './app/providers';
 import { router } from './app/router';
+import { registerSW } from 'virtual:pwa-register';
 import './styles/global.css';
 
 const root = document.getElementById('root');
@@ -15,3 +16,6 @@ createRoot(root).render(
     </Providers>
   </StrictMode>,
 );
+
+// App instalável: registra o service worker e atualiza sozinho quando houver versão nova.
+registerSW({ immediate: true });

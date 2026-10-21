@@ -28,11 +28,14 @@ export function ChatPanel({ compact }: { compact?: boolean }) {
   const remove = useDeleteConversation();
   const [text, setText] = useState('');
   const [pending, setPending] = useState<string | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const messages: AiMessage[] = conversation.data?.messages ?? [];
 
+  // Rola só a lista de mensagens (e não a página inteira) quando chega mensagem nova.
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    const list = listRef.current;
+    if (list && (messages.length > 0 || pending))
+      list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
   }, [messages.length, pending]);
 
   const submit = async (message: string) => {
@@ -116,6 +119,7 @@ export function ChatPanel({ compact }: { compact?: boolean }) {
 
       <div className="flex min-h-[320px] flex-col">
         <div
+          ref={listRef}
           className={cn('flex-1 space-y-3 overflow-y-auto pr-1', compact ? 'max-h-[55vh]' : 'max-h-[420px]')}
           aria-live="polite"
         >
@@ -152,7 +156,6 @@ export function ChatPanel({ compact }: { compact?: boolean }) {
               </>
             )}
           </AnimatePresence>
-          <div ref={endRef} />
         </div>
 
         <div className="mt-3 flex items-end gap-2 border-t border-border/50 pt-3">
