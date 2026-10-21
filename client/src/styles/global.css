@@ -1,64 +1,156 @@
-/* Estilo provisório da Etapa 0. O design system completo chega na Etapa 1. */
+@import 'tailwindcss';
+
+/* Fontes locais (funcionam offline) */
+@import '@fontsource/orbitron/500.css';
+@import '@fontsource/orbitron/700.css';
+@import '@fontsource/orbitron/900.css';
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/600.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+/* ===== Tokens do design system (CLAUDE.md, seção 6) =====
+   Viram classes do Tailwind: bg-panel, text-primary, border-border, font-display... */
+@theme {
+  --color-bg-deep: #030814;
+  --color-bg-base: #061026;
+  --color-panel: rgba(10, 26, 64, 0.55);
+  --color-panel-strong: rgba(12, 30, 72, 0.85);
+  --color-grid-line: rgba(56, 140, 255, 0.08);
+  --color-border: rgba(90, 170, 255, 0.28);
+  --color-glow: rgba(56, 189, 248, 0.6);
+  --color-primary: #38bdf8;
+  --color-primary-2: #3b82f6;
+  --color-star: #a5f3fc;
+  --color-text: #e6f0ff;
+  --color-text-dim: #8ea6cf;
+  --color-text-faint: #5b6f95;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  --font-display: 'Orbitron', sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius-card: 16px;
+
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    50% {
+      opacity: 0.6;
+      box-shadow: 0 0 0 4px transparent;
+    }
+  }
+}
+
+/* Intensidade do brilho (Configurações > Aparência). 1 = padrão. */
 :root {
   color-scheme: dark;
-  --bg-deep: #030814;
-  --primary: #38bdf8;
-  --text: #e6f0ff;
-  --text-dim: #8ea6cf;
-  --success: #34d399;
-  --danger: #f87171;
+  --glow-strength: 1;
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  html,
+  body {
+    background: var(--color-bg-deep);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100dvh;
+  }
+
+  /* Foco visível com anel ciano */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: rgba(56, 189, 248, 0.35);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(90, 170, 255, 0.2);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: radial-gradient(circle at center, #0b1c44 0%, var(--bg-deep) 70%);
-  color: var(--text);
-  font-family: system-ui, sans-serif;
+@layer components {
+  /* Rótulo mono em maiúsculas com espaçamento largo */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  /* Vidro dos cards */
+  .glass {
+    background: var(--color-panel);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    box-shadow:
+      0 0 calc(24px * var(--glow-strength)) rgba(56, 189, 248, calc(0.08 * var(--glow-strength))),
+      inset 0 1px 0 rgba(165, 243, 252, 0.06);
+  }
+
+  .glow-text {
+    text-shadow: 0 0 calc(18px * var(--glow-strength)) rgba(56, 189, 248, calc(0.55 * var(--glow-strength)));
+  }
+
+  .glow-box {
+    box-shadow: 0 0 calc(18px * var(--glow-strength)) rgba(56, 189, 248, calc(0.35 * var(--glow-strength)));
+  }
 }
 
-.boot {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-  padding: 16px;
+/* Animações desligadas (preferência do usuário ou do sistema) */
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
 }
 
-.boot-star {
-  width: 96px;
-  filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.6));
-}
-
-.boot h1 {
-  margin: 8px 0 0;
-  letter-spacing: 0.3em;
-  color: var(--primary);
-}
-
-.boot-subtitle {
-  margin: 0;
-  color: var(--text-dim);
-}
-
-.boot-status {
-  font-family: ui-monospace, monospace;
-  font-size: 13px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.boot-status.ok {
-  color: var(--success);
-}
-
-.boot-status.error {
-  color: var(--danger);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

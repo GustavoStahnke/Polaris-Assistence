@@ -1,6 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { App } from './app/App';
+import { RouterProvider } from 'react-router/dom';
+import { Providers } from './app/providers';
+import { router } from './app/router';
 import './styles/global.css';
 
 const root = document.getElementById('root');
@@ -8,6 +10,8 @@ if (!root) throw new Error('Elemento #root não encontrado no index.html');
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <Providers>
+      <RouterProvider router={router} />
+    </Providers>
   </StrictMode>,
 );

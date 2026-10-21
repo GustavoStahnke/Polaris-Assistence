@@ -651,7 +651,7 @@ Todas as tabelas têm `id` (UUID em texto), `created_at` e `updated_at` (ISO 860
 ## 12. Progresso
 
 - [x] Etapa 0 — Fundação
-- [ ] Etapa 1 — Visual e esqueleto
+- [x] Etapa 1 — Visual e esqueleto
 - [ ] Etapa 2 — Banco de dados
 - [ ] Etapa 3 — Hub de Integrações
 - [ ] Etapa 4 — Academia
