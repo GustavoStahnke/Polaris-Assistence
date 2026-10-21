@@ -260,7 +260,7 @@ O sistema é **só tema escuro**.
 
 ## 7. Hub de Integrações (área central)
 
-A página **Integrações** (`/integracoes`) é onde todas as APIs e programas externos são conectados, configurados, testados e monitorados. Funciona como uma "central de conexões" do sistema.
+A aba **Integrações**, dentro de Configurações (`/configuracoes?aba=integracoes`), é onde todas as APIs e programas externos são conectados, configurados, testados e monitorados. Funciona como uma "central de conexões" do sistema.
 
 ### Contrato de cada integração (`server/src/integrations/types.ts`)
 
@@ -317,7 +317,7 @@ interface IntegrationDefinition<Config> {
 | `GET /api/integrations/:id/logs` | Histórico de eventos |
 | `GET /api/integrations/google/callback` | Retorno do OAuth do Google |
 
-### Interface da página Integrações
+### Interface da aba Integrações
 
 - **Topo:** resumo com "7 conectadas · 1 com erro · 6 em breve" e o botão "Sincronizar tudo".
 - **Filtros:** Todas, Conectadas, Disponíveis, Em breve. Os cards ficam agrupados por categoria.
@@ -505,13 +505,16 @@ A pedido do usuário, o antigo módulo Academia virou **Treino**, com várias mo
   - registrar um treino marca o hábito "Treino";
   - registrar leitura marca o hábito "Leitura".
 
-### 8.11 Integrações (`/integracoes`)
+### 8.11 Integrações (`/configuracoes?aba=integracoes`)
 
-Ver a seção 7.
+- A pedido do usuário, Integrações virou uma aba de Configurações e saiu da barra lateral. Continua acessível pela paleta Ctrl+K e pelo indicador "INTEGRAÇÕES" da top bar.
+- O endereço antigo `/integracoes` redireciona para a aba. Os links internos usam `integrationsPath()` (`client/src/lib/paths.ts`).
+- O resto está na seção 7.
 
 ### 8.12 Configurações (`/configuracoes`)
 
 - **Perfil:** nome, como a Polaris chama o usuário e cidade (atalho para o Open-Meteo).
+- **Integrações:** a central de conexões (seção 7).
 - **Aparência:** intensidade do brilho, animações ligadas ou desligadas, reduzir movimento.
 - **Backup:**
   - "Fazer backup agora";

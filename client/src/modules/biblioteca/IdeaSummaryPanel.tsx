@@ -8,6 +8,7 @@ import { Textarea } from '../../components/ui/Input';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { formatDateTime } from '../../lib/format';
 import { useAiStatus, useBookSummary } from '../ia/api';
+import { integrationsPath } from '../../lib/paths';
 
 /** "Minhas ideias sobre o livro": resumo das anotações do usuário, gerado pela IA e editável. */
 export function IdeaSummaryPanel({
@@ -84,7 +85,7 @@ export function IdeaSummaryPanel({
               {summary ? 'Gerar de novo' : 'Gerar resumo das minhas ideias'}
             </Button>
           ) : (
-            <Link to="/integracoes?config=ollama" className="label-mono text-primary hover:text-star">
+            <Link to={integrationsPath('ollama')} className="label-mono text-primary hover:text-star">
               Conecte a IA em Integrações →
             </Link>
           )}

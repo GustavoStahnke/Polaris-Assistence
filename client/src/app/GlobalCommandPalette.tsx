@@ -9,6 +9,7 @@ import {
   ListTodo,
   MessageCircle,
   Play,
+  Plug,
   RefreshCw,
   StickyNote,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CommandPalette, type PaletteCommand } from '../components/ui/CommandPalette';
 import { api } from '../lib/api';
+import { integrationsPath } from '../lib/paths';
 import { useBeginWorkout } from '../modules/academia/useBeginWorkout';
 import { useEnabledModalities, useTodayWorkout } from '../modules/academia/api';
 import { modalityIcon } from '../modules/academia/modality';
@@ -138,7 +140,7 @@ export function GlobalCommandPalette() {
         run: () => syncAll.mutate(),
       },
     ];
-    const navigation = NAV_ITEMS.map((item) => ({
+    const navigation: PaletteCommand[] = NAV_ITEMS.map((item) => ({
       id: `nav:${item.path}`,
       label: `Ir para ${item.label}`,
       group: 'Navegação',
@@ -146,6 +148,15 @@ export function GlobalCommandPalette() {
       keywords: item.mobileLabel,
       run: () => navigate(item.path),
     }));
+    // Integrações não está na barra lateral (é uma aba de Configurações), mas segue acessível aqui.
+    navigation.push({
+      id: 'nav:integracoes',
+      label: 'Ir para Integrações',
+      group: 'Navegação',
+      icon: Plug,
+      keywords: 'conexões configurações',
+      run: () => navigate(integrationsPath()),
+    });
     return [...actions, ...navigation];
   }, [navigate, setQuickAction, setChatOpen, today.data, modalities, begin, syncAll]);
 

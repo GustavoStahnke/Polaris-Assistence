@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import { cn } from '../../lib/cn';
 import { EmptyState } from './EmptyState';
 import { SkeletonLines } from './Skeleton';
+import { integrationsPath } from '../../lib/paths';
 
 export type CardState = 'ready' | 'loading' | 'empty' | 'error';
 
@@ -92,7 +93,7 @@ export function PolarisCard({
           <div className="flex flex-col items-center gap-2 py-3 text-center">
             <AlertTriangle className="h-5 w-5 text-danger" aria-hidden />
             <p className="text-sm text-text-dim">{errorMessage ?? 'Não foi possível carregar.'}</p>
-            <Link to="/integracoes" className="label-mono text-primary hover:text-star">
+            <Link to={integrationsPath()} className="label-mono text-primary hover:text-star">
               Ver integrações →
             </Link>
           </div>

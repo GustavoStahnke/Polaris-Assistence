@@ -7,6 +7,7 @@ import { DynamicIcon } from '../../components/ui/DynamicIcon';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { formatRelative } from '../../lib/format';
 import { useWeather } from './api';
+import { integrationsPath } from '../../lib/paths';
 
 /** Card "Clima" do Painel. */
 export function WeatherCard({ index, className }: { index?: number; className?: string }) {
@@ -42,7 +43,7 @@ export function WeatherCard({ index, className }: { index?: number; className?: 
       emptyTitle="Escolha sua cidade"
       emptyMessage="Configure o Open-Meteo para ver o clima aqui."
       emptyAction={
-        <Link to="/integracoes?config=open-meteo" className="label-mono text-primary hover:text-star">
+        <Link to={integrationsPath('open-meteo')} className="label-mono text-primary hover:text-star">
           Configurar →
         </Link>
       }

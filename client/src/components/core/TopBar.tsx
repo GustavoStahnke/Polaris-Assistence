@@ -8,6 +8,7 @@ import { capitalize, formatClock, formatLongDate } from '../../lib/format';
 import { useAppearanceStore, useUiStore } from '../../stores/uiStore';
 import { StatusDot } from '../ui/StatusDot';
 import { Logo } from './Logo';
+import { integrationsPath } from '../../lib/paths';
 
 /** Relógio ao vivo, isolado para só ele renderizar a cada segundo. */
 function Clock() {
@@ -84,7 +85,7 @@ export function TopBar({ integrations }: { integrations?: IntegrationsSummary })
           </div>
           {integrations && (
             <Link
-              to="/integracoes"
+              to={integrationsPath()}
               className="label-mono hidden items-center gap-2 text-text-dim transition-colors hover:text-star md:flex"
               title="Integrações conectadas"
             >

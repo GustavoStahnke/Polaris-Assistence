@@ -13,6 +13,7 @@ import { cn } from '../../lib/cn';
 import { formatRelative } from '../../lib/format';
 import { useEmailActions, useEmails } from './api';
 import { CATEGORY_TONES } from './categories';
+import { integrationsPath } from '../../lib/paths';
 
 export function EmailPage() {
   const emails = useEmails();
@@ -29,7 +30,7 @@ export function EmailPage() {
         title="E-mail"
         actions={
           <>
-            <Link to="/integracoes?config=gmail" className="label-mono text-text-dim hover:text-star">
+            <Link to={integrationsPath('gmail')} className="label-mono text-text-dim hover:text-star">
               Filtros e VIPs
             </Link>
             <Button
@@ -52,7 +53,7 @@ export function EmailPage() {
             message="A Polaris mostra só os e-mails que importam e já separa o que é urgente. Somente leitura."
             action={
               <Link
-                to="/integracoes?config=google-account"
+                to={integrationsPath('google-account')}
                 className="label-mono text-primary hover:text-star"
               >
                 Conectar Conta Google →
@@ -66,7 +67,7 @@ export function EmailPage() {
             <p className="mb-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
               {data.state === 'stale' ? 'Mostrando a última lista salva. ' : ''}
               {data.error}{' '}
-              <Link to="/integracoes?config=gmail" className="underline">
+              <Link to={integrationsPath('gmail')} className="underline">
                 Ver integração
               </Link>
             </p>

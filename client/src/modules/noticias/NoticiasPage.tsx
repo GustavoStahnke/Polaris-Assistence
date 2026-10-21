@@ -24,6 +24,7 @@ import { cn } from '../../lib/cn';
 import { formatRelative } from '../../lib/format';
 import { useNews, useNewsActions, useSavedNews } from './api';
 import { NewsImage } from './NewsImage';
+import { integrationsPath } from '../../lib/paths';
 
 export function NoticiasPage() {
   const [view, setView] = useState<'feed' | 'salvas'>('feed');
@@ -53,7 +54,7 @@ export function NoticiasPage() {
         actions={
           <>
             <Link
-              to="/integracoes?config=rss"
+              to={integrationsPath('rss')}
               className="label-mono flex items-center gap-1.5 text-text-dim hover:text-star"
             >
               <Rss className="h-3.5 w-3.5" /> Feeds
@@ -117,7 +118,7 @@ export function NoticiasPage() {
           {data && data.state !== 'ok' && data.error && (
             <p className="mb-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
               {data.state === 'stale' ? `Mostrando notícias salvas no cache. ${data.error}` : data.error}{' '}
-              <Link to="/integracoes?config=rss" className="underline">
+              <Link to={integrationsPath('rss')} className="underline">
                 Ver integração
               </Link>
             </p>

@@ -8,7 +8,6 @@ import {
   ListTodo,
   Mail,
   Newspaper,
-  Plug,
   Settings,
   StickyNote,
   Target,
@@ -36,7 +35,6 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/notas', label: 'Notas', icon: StickyNote },
   { path: '/tarefas', label: 'Tarefas', icon: ListTodo },
   { path: '/habitos', label: 'Hábitos', icon: Target },
-  { path: '/integracoes', label: 'Integrações', icon: Plug },
   { path: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
 

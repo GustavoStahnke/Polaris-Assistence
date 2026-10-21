@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, redirect } from 'react-router';
 import { PainelPage } from '../modules/painel/PainelPage';
 import { BootScreen } from './BootScreen';
 import { Layout } from './Layout';
@@ -64,10 +64,13 @@ export const router = createBrowserRouter([
         lazy: async () => ({ Component: (await import('../modules/habitos/HabitosPage')).HabitosPage }),
       },
       {
+        // Endereço antigo: Integrações agora é uma aba de Configurações.
         path: 'integracoes',
-        lazy: async () => ({
-          Component: (await import('../modules/integracoes/IntegracoesPage')).IntegracoesPage,
-        }),
+        loader: ({ request }) => {
+          const params = new URL(request.url).searchParams;
+          params.set('aba', 'integracoes');
+          return redirect(`/configuracoes?${params.toString()}`);
+        },
       },
       {
         path: 'configuracoes',

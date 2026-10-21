@@ -5,6 +5,7 @@ import { Badge } from '../../components/ui/Badge';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { useAgenda } from './api';
 import { countdown, timeRange } from './time';
+import { integrationsPath } from '../../lib/paths';
 
 /** Card "Agenda · Hoje" do Painel: próximo compromisso com contagem regressiva e a lista do dia. */
 export function AgendaCard({ index, className }: { index?: number; className?: string }) {
@@ -43,7 +44,7 @@ export function AgendaCard({ index, className }: { index?: number; className?: s
       }
       emptyAction={
         notConnected && (
-          <Link to="/integracoes?config=google-account" className="label-mono text-primary hover:text-star">
+          <Link to={integrationsPath('google-account')} className="label-mono text-primary hover:text-star">
             Conectar →
           </Link>
         )

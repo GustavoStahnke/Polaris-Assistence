@@ -36,9 +36,10 @@ emailRouter.delete('/vips/:id', (req, res) => {
 /** Para onde voltar depois do login do Google (a interface mostra o resultado). */
 export function googleReturnUrl(ok: boolean, message: string): string {
   const params = new URLSearchParams({
+    aba: 'integracoes',
     config: 'google-account',
     google: ok ? 'ok' : 'erro',
     mensagem: message,
   });
-  return `${getClientOrigin()}/integracoes?${params.toString()}`;
+  return `${getClientOrigin()}/configuracoes?${params.toString()}`;
 }

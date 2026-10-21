@@ -6,6 +6,7 @@ import { PolarisCard } from '../../components/ui/PolarisCard';
 import { formatRelative } from '../../lib/format';
 import { useEmails } from './api';
 import { CATEGORY_TONES } from './categories';
+import { integrationsPath } from '../../lib/paths';
 
 /** Card "E-mails importantes" do Painel: quantidade e os 3 principais. */
 export function EmailCard({ index, className }: { index?: number; className?: string }) {
@@ -35,7 +36,7 @@ export function EmailCard({ index, className }: { index?: number; className?: st
       emptyMessage={notConnected ? 'Veja só o que importa, já com triagem.' : 'Tudo tranquilo por aqui.'}
       emptyAction={
         notConnected && (
-          <Link to="/integracoes?config=google-account" className="label-mono text-primary hover:text-star">
+          <Link to={integrationsPath('google-account')} className="label-mono text-primary hover:text-star">
             Conectar →
           </Link>
         )

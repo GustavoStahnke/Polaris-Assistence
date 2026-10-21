@@ -10,6 +10,7 @@ import { Textarea } from '../../components/ui/Input';
 import { cn } from '../../lib/cn';
 import { formatRelative, formatTime } from '../../lib/format';
 import { useAiStatus, useConversation, useConversations, useDeleteConversation, useSendMessage } from './api';
+import { integrationsPath } from '../../lib/paths';
 
 const SUGGESTIONS = [
   'Como está meu dia?',
@@ -63,7 +64,7 @@ export function ChatPanel({ compact }: { compact?: boolean }) {
           </>
         }
         action={
-          <Link to="/integracoes?config=ollama" className="label-mono text-primary hover:text-star">
+          <Link to={integrationsPath('ollama')} className="label-mono text-primary hover:text-star">
             Conecte a IA em Integrações →
           </Link>
         }

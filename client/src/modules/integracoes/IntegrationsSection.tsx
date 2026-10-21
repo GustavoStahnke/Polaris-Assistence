@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tabs } from '../../components/ui/Tabs';
 import { toast } from '../../stores/toastStore';
@@ -21,7 +20,8 @@ const FILTERS: Record<Filter, (i: IntegrationView) => boolean> = {
   em_breve: (i) => i.availability === 'soon',
 };
 
-export function IntegracoesPage() {
+/** Aba Integrações da página Configurações: a central de conexões do sistema. */
+export function IntegrationsSection() {
   const integrations = useIntegrations();
   const syncAll = useSyncAll();
   const [filter, setFilter] = useState<Filter>('todas');
@@ -45,7 +45,14 @@ export function IntegracoesPage() {
     return [...groups.entries()];
   }, [list, filter]);
 
-  const openConfig = (id: string | null) => setParams(id ? { config: id } : {});
+  // Abre ou fecha a gaveta mantendo os outros parâmetros da URL (como a aba atual).
+  const openConfig = (id: string | null) =>
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      if (id) next.set('config', id);
+      else next.delete('config');
+      return next;
+    });
 
   // Volta do login do Google: mostra o resultado uma vez e limpa a URL.
   const googleResult = params.get('google');
@@ -54,32 +61,27 @@ export function IntegracoesPage() {
     if (!googleResult) return;
     if (googleResult === 'ok') toast.success('Conta Google conectada', googleMessage ?? undefined);
     else toast.error('Não foi possível conectar ao Google', googleMessage ?? undefined);
-    setParams({ config: 'google-account' }, { replace: true });
+    setParams({ aba: 'integracoes', config: 'google-account' }, { replace: true });
   }, [googleResult, googleMessage, setParams]);
   let cardIndex = 0;
 
   return (
     <>
-      <PageHeader
-        label="Sistema · Conexões"
-        title="Integrações"
-        actions={
-          <Button
-            variant="primary"
-            icon={RefreshCw}
-            loading={syncAll.isPending}
-            onClick={() => syncAll.mutate()}
-          >
-            Sincronizar tudo
-          </Button>
-        }
-      />
-
-      <p className="label-mono -mt-3 mb-5 text-text-dim">
-        <span className="text-success">{counts.connected} conectadas</span> ·{' '}
-        <span className={counts.errors ? 'text-danger' : undefined}>{counts.errors} com erro</span> ·{' '}
-        {counts.soon} em breve
-      </p>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="label-mono text-text-dim">
+          <span className="text-success">{counts.connected} conectadas</span> ·{' '}
+          <span className={counts.errors ? 'text-danger' : undefined}>{counts.errors} com erro</span> ·{' '}
+          {counts.soon} em breve
+        </p>
+        <Button
+          variant="primary"
+          icon={RefreshCw}
+          loading={syncAll.isPending}
+          onClick={() => syncAll.mutate()}
+        >
+          Sincronizar tudo
+        </Button>
+      </div>
 
       {integrations.isPending ? (
         <Skeleton className="h-72 w-full" />

@@ -11,6 +11,7 @@ import { Tabs } from '../../components/ui/Tabs';
 import { capitalize, formatLongDate, formatRelative } from '../../lib/format';
 import { useAgenda, useRefreshAgenda } from './api';
 import { countdown, itemDay, timeRange } from './time';
+import { integrationsPath } from '../../lib/paths';
 
 /** Re-renderiza a cada 30 segundos (para a contagem regressiva). */
 function useNow(interval = 30_000) {
@@ -64,7 +65,7 @@ export function AgendaPage() {
             Conecte sua Conta Google para ver os eventos do Google Agenda. Os lembretes do Polaris já aparecem
             aqui.
           </span>
-          <Link to="/integracoes?config=google-account" className="label-mono text-primary hover:text-star">
+          <Link to={integrationsPath('google-account')} className="label-mono text-primary hover:text-star">
             Conectar →
           </Link>
         </div>
@@ -73,7 +74,7 @@ export function AgendaPage() {
         <p className="mb-5 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
           {data.state === 'stale' ? 'Mostrando a última agenda salva. ' : ''}
           {data.error}{' '}
-          <Link to="/integracoes?config=google-calendar" className="underline">
+          <Link to={integrationsPath('google-calendar')} className="underline">
             Ver integração
           </Link>
         </p>

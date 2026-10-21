@@ -51,7 +51,7 @@ export function ProfileSection() {
         </Field>
         <Field
           label="Sua cidade"
-          hint="Usada como referência. A cidade do clima é escolhida em Integrações › Open-Meteo."
+          hint="Usada como referência. A cidade do clima é escolhida na aba Integrações › Open-Meteo."
           className="md:col-span-2"
         >
           {(id) => <Input id={id} placeholder="Ex.: Porto Alegre" {...form.register('city')} />}

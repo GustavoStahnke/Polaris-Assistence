@@ -25,6 +25,7 @@ import { PolarisCard } from '../../components/ui/PolarisCard';
 import { axisProps, CHART_COLORS, gridProps, tooltipProps } from '../../lib/chartTheme';
 import { capitalize, formatRelative, formatTime, formatWeekdayShort } from '../../lib/format';
 import { useRefreshWeather, useWeather } from './api';
+import { integrationsPath } from '../../lib/paths';
 
 export function ClimaPage() {
   const query = useWeather();
@@ -52,7 +53,7 @@ export function ClimaPage() {
             title={report?.state === 'error' ? 'Não foi possível carregar o clima' : 'Escolha sua cidade'}
             message={report?.error ?? 'Configure o Open-Meteo em Integrações para ver a previsão.'}
             action={
-              <Link to="/integracoes?config=open-meteo" className="label-mono text-primary hover:text-star">
+              <Link to={integrationsPath('open-meteo')} className="label-mono text-primary hover:text-star">
                 Abrir Integrações →
               </Link>
             }
