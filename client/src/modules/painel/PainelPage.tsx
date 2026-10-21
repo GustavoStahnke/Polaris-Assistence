@@ -13,7 +13,9 @@ import {
 import { Badge } from '../../components/ui/Badge';
 import { CountUp } from '../../components/ui/CountUp';
 import { PolarisCard } from '../../components/ui/PolarisCard';
+import { Link } from 'react-router';
 import { capitalize, formatLongDate, greeting } from '../../lib/format';
+import { useProfile } from '../../lib/hooks/useProfile';
 import { NucleusPanel } from './NucleusPanel';
 
 // Dados fictícios só para mostrar o visual (os dados reais chegam nas próximas etapas).
@@ -35,12 +37,26 @@ const demo = {
 
 export function PainelPage() {
   const now = new Date();
+  const { displayName, data: profile } = useProfile();
   return (
     <div>
       <div className="mb-5">
         <p className="label-mono text-primary">Painel · Briefing do dia</p>
-        <h1 className="mt-1 text-2xl font-semibold md:text-3xl">{greeting(now)}!</h1>
-        <p className="text-sm text-text-dim">{capitalize(formatLongDate(now))}</p>
+        <h1 className="mt-1 text-2xl font-semibold md:text-3xl">
+          {greeting(now)}
+          {displayName ? `, ${displayName}` : ''}!
+        </h1>
+        <p className="text-sm text-text-dim">
+          {capitalize(formatLongDate(now))}
+          {profile && !displayName && (
+            <>
+              {' · '}
+              <Link to="/configuracoes" className="text-primary hover:text-star">
+                Diga à Polaris como te chamar
+              </Link>
+            </>
+          )}
+        </p>
       </div>
 
       <div className="mb-5 flex flex-wrap gap-2">

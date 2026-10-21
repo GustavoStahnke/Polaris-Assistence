@@ -2,8 +2,8 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { CLIENT_DIST_DIR } from './config/paths';
-import { apiNotFound, errorHandler } from './lib/http';
-import { healthRouter } from './routes/health';
+import { errorHandler } from './lib/http';
+import { createApiRouter } from './routes';
 
 interface AppOptions {
   /** Em produção, o servidor também entrega o client buildado. */
@@ -13,11 +13,10 @@ interface AppOptions {
 export function createApp({ serveClient }: AppOptions) {
   const app = express();
   app.disable('x-powered-by');
-  app.use(express.json({ limit: '20mb' }));
+  app.use(express.json({ limit: '50mb' }));
 
   // Rotas da API
-  app.use('/api/health', healthRouter);
-  app.use('/api', apiNotFound);
+  app.use('/api', createApiRouter());
 
   // Client buildado (npm start)
   if (serveClient) {

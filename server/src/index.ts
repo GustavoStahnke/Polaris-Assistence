@@ -1,12 +1,17 @@
 import { APP_NAME } from '@polaris/shared';
 import http from 'node:http';
-import { createApp } from './app';
 import { loadEnvironment } from './config/env';
 
-// 1. Ambiente (.env + POLARIS_SECRET)
+// 1. Ambiente (.env + POLARIS_SECRET). Precisa vir antes de tudo.
 const env = loadEnvironment();
 
-// 2. Aplicação Express
+// 2. Banco de dados (importado depois do ambiente estar pronto)
+const { prepareDatabase } = await import('./bootstrap');
+await prepareDatabase();
+
+// 3. Aplicação Express
+const { createApp } = await import('./app');
+const { startJobs } = await import('./jobs');
 const app = createApp({ serveClient: env.isProduction });
 const server = http.createServer(app);
 
@@ -22,4 +27,5 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 server.listen(env.port, env.host, () => {
   const mode = env.isProduction ? 'produção' : 'desenvolvimento';
   console.log(`✨ ${APP_NAME} online em http://localhost:${env.port} (${mode})`);
+  startJobs();
 });

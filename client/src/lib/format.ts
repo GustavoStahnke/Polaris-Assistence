@@ -97,3 +97,20 @@ export const capitalize = (text: string) => (text ? text[0]!.toUpperCase() + tex
 /** "1 livro" / "3 livros" */
 export const plural = (count: number, singular: string, pluralForm = `${singular}s`) =>
   `${formatNumber(count)} ${count === 1 ? singular : pluralForm}`;
+
+/** 1536 → "1,5 KB" */
+export function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ['KB', 'MB', 'GB'];
+  let value = bytes / 1024;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return `${formatNumber(value, 1)} ${units[unit]}`;
+}
+
+/** 21/10/2026 14:05 */
+export const formatDateTime = (value: Date | string | number) =>
+  `${formatShortDate(value)} ${formatTime(value)}`;
