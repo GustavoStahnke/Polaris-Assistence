@@ -7,8 +7,10 @@ import { Sidebar } from '../components/core/Sidebar';
 import { TopBar } from '../components/core/TopBar';
 import { Toaster } from '../components/ui/Toast';
 import { useIntegrations, useIsSyncing } from '../modules/integracoes/api';
+import { ReminderWatcher } from '../modules/tarefas/ReminderWatcher';
 import { useAppearanceStore, useReducedMotion } from '../stores/uiStore';
 import { GlobalCommandPalette } from './GlobalCommandPalette';
+import { QuickActions } from './QuickActions';
 
 /** Estrutura de todas as páginas: fundo, barra superior, barra lateral e conteúdo. */
 export function Layout() {
@@ -49,6 +51,8 @@ export function Layout() {
       </main>
       <MobileNav />
       <GlobalCommandPalette />
+      <QuickActions />
+      <ReminderWatcher />
       <Toaster />
     </MotionConfig>
   );

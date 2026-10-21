@@ -8,6 +8,7 @@ export * from './schemas/gym';
 export * from './schemas/health';
 export * from './schemas/integrations';
 export * from './schemas/news';
+export * from './schemas/productivity';
 export * from './schemas/settings';
 export * from './schemas/system';
 export * from './schemas/weather';

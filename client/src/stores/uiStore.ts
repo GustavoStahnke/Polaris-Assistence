@@ -3,6 +3,9 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type NucleusState = 'ocioso' | 'processando' | 'ouvindo' | 'falando';
 
+/** Ações rápidas abertas pela paleta Ctrl+K ou pelo botão "+". */
+export type QuickAction = 'note' | 'task' | 'reading' | null;
+
 interface UiState {
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean) => void;
@@ -11,6 +14,8 @@ interface UiState {
   /** Estado do Núcleo Polaris (fica "processando" enquanto a IA pensa). */
   nucleusState: NucleusState;
   setNucleusState: (state: NucleusState) => void;
+  quickAction: QuickAction;
+  setQuickAction: (action: QuickAction) => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -20,6 +25,8 @@ export const useUiStore = create<UiState>((set) => ({
   setMoreOpen: (moreOpen) => set({ moreOpen }),
   nucleusState: 'ocioso',
   setNucleusState: (nucleusState) => set({ nucleusState }),
+  quickAction: null,
+  setQuickAction: (quickAction) => set({ quickAction }),
 }));
 
 interface AppearanceState {

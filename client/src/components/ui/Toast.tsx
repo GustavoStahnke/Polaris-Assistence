@@ -23,7 +23,7 @@ export function Toaster() {
   return (
     <div
       aria-live="polite"
-      className="pointer-events-none fixed right-4 bottom-24 z-[60] flex w-[min(360px,calc(100vw-2rem))] flex-col gap-2 md:bottom-6"
+      className="pointer-events-none fixed right-4 bottom-40 z-[60] flex w-[min(360px,calc(100vw-2rem))] flex-col gap-2 md:bottom-24"
     >
       <AnimatePresence>
         {toasts.map((t) => {

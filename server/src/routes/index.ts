@@ -7,6 +7,7 @@ import { healthRouter } from './health';
 import { integrationsRouter } from './integrations';
 import { libraryRouter } from './library';
 import { newsRouter } from './news';
+import { habitsRouter, notesRouter, remindersRouter, searchRouter, tasksRouter } from './productivity';
 import { settingsRouter } from './settings';
 import { systemRouter } from './system';
 import { weatherRouter } from './weather';
@@ -24,6 +25,11 @@ export function createApiRouter() {
   api.use('/library', libraryRouter);
   api.use('/weather', weatherRouter);
   api.use('/alerts', alertsRouter);
+  api.use('/notes', notesRouter);
+  api.use('/tasks', tasksRouter);
+  api.use('/reminders', remindersRouter);
+  api.use('/habits', habitsRouter);
+  api.use('/search', searchRouter);
   api.use(apiNotFound);
   return api;
 }

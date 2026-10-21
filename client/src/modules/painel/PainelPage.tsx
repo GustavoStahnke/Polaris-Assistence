@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { CalendarDays, CheckSquare, Mail, Target } from 'lucide-react';
+import { CalendarDays, Mail } from 'lucide-react';
 import { Link } from 'react-router';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { capitalize, formatLongDate, greeting } from '../../lib/format';
@@ -8,7 +8,9 @@ import { WorkoutTodayCard } from '../academia/WorkoutTodayCard';
 import { CurrentReadingCard } from '../biblioteca/CurrentReadingCard';
 import { RememberCard } from '../biblioteca/RememberCard';
 import { WeatherCard } from '../clima/WeatherCard';
+import { HabitsTodayCard } from '../habitos/HabitsTodayCard';
 import { NewsCard } from '../noticias/NewsCard';
+import { TasksTodayCard } from '../tarefas/TasksTodayCard';
 import { AlertsStrip } from './AlertsStrip';
 import { NucleusPanel } from './NucleusPanel';
 
@@ -97,22 +99,8 @@ export function PainelPage() {
         <NewsCard index={3} className="lg:col-start-3 lg:row-start-2" />
         <CurrentReadingCard index={4} />
         <WorkoutTodayCard index={5} />
-        <UpcomingCard
-          index={6}
-          icon={Target}
-          label="Rotina · Hábitos"
-          title="Hábitos de hoje"
-          to="/habitos"
-          stage={7}
-        />
-        <UpcomingCard
-          index={7}
-          icon={CheckSquare}
-          label="Foco · Tarefas"
-          title="Tarefas do dia"
-          to="/tarefas"
-          stage={7}
-        />
+        <HabitsTodayCard index={6} />
+        <TasksTodayCard index={7} />
         <RememberCard index={8} />
       </div>
     </div>

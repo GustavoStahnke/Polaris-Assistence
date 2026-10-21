@@ -8,14 +8,17 @@ import {
 } from 'react';
 import { cn } from '../../lib/cn';
 
+/** Largura padrão só quando o componente não recebeu outra (evita conflito w-full × w-auto). */
+const defaultWidth = (className?: string) => (/(^|\s)w-/.test(className ?? '') ? undefined : 'w-full');
+
 const fieldBase =
-  'w-full rounded-xl border border-border bg-bg-deep/60 px-3.5 text-sm text-text placeholder:text-text-faint transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60';
+  'rounded-xl border border-border bg-bg-deep/60 px-3.5 text-sm text-text placeholder:text-text-faint transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-60';
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
   { className, ...props },
   ref,
 ) {
-  return <input ref={ref} className={cn(fieldBase, 'h-10', className)} {...props} />;
+  return <input ref={ref} className={cn(fieldBase, 'h-10', defaultWidth(className), className)} {...props} />;
 });
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
@@ -24,7 +27,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
       <textarea
         ref={ref}
         rows={rows}
-        className={cn(fieldBase, 'py-2.5 leading-relaxed', className)}
+        className={cn(fieldBase, 'py-2.5 leading-relaxed', defaultWidth(className), className)}
         {...props}
       />
     );
@@ -36,7 +39,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
   ref,
 ) {
   return (
-    <select ref={ref} className={cn(fieldBase, 'h-10 appearance-auto pr-8', className)} {...props}>
+    <select
+      ref={ref}
+      className={cn(fieldBase, 'h-10 appearance-auto pr-8', defaultWidth(className), className)}
+      {...props}
+    >
       {children}
     </select>
   );
