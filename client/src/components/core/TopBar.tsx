@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { RefreshCw, Search } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, RefreshCw, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { fetchHealth } from '../../lib/api';
 import { cn } from '../../lib/cn';
 import { capitalize, formatClock, formatLongDate } from '../../lib/format';
-import { useUiStore } from '../../stores/uiStore';
+import { useAppearanceStore, useUiStore } from '../../stores/uiStore';
 import { StatusDot } from '../ui/StatusDot';
 import { Logo } from './Logo';
 
@@ -35,20 +35,35 @@ export interface IntegrationsSummary {
 /** Barra superior: logo, relógio e status do sistema. */
 export function TopBar({ integrations }: { integrations?: IntegrationsSummary }) {
   const setPaletteOpen = useUiStore((s) => s.setPaletteOpen);
+  const sidebarExpanded = useAppearanceStore((s) => s.sidebarExpanded);
+  const setAppearance = useAppearanceStore((s) => s.setAppearance);
   const health = useQuery({ queryKey: ['health'], queryFn: fetchHealth, refetchInterval: 30_000, retry: 0 });
   const online = health.isSuccess;
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/40 bg-bg-deep/70 backdrop-blur-md">
       <div className="mx-auto grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 md:px-6">
-        <Link to="/" aria-label="Ir para o Painel" className="justify-self-start">
-          <span className="hidden sm:block">
-            <Logo />
-          </span>
-          <span className="sm:hidden">
-            <Logo compact />
-          </span>
-        </Link>
+        <div className="flex items-center gap-3 justify-self-start">
+          {/* Expande/recolhe a barra lateral (só no computador; no celular a navegação fica embaixo). */}
+          <button
+            type="button"
+            onClick={() => setAppearance({ sidebarExpanded: !sidebarExpanded })}
+            aria-label={sidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+            aria-expanded={sidebarExpanded}
+            title={sidebarExpanded ? 'Recolher menu' : 'Expandir menu'}
+            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-border text-text-dim transition-colors hover:border-primary hover:text-star md:flex"
+          >
+            {sidebarExpanded ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
+          </button>
+          <Link to="/" aria-label="Ir para o Painel">
+            <span className="hidden sm:block">
+              <Logo />
+            </span>
+            <span className="sm:hidden">
+              <Logo compact />
+            </span>
+          </Link>
+        </div>
 
         <Clock />
 

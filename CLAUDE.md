@@ -332,7 +332,7 @@ interface IntegrationDefinition<Config> {
   - formulário gerado a partir do `configSchema`;
   - guia passo a passo quando a integração exige configuração externa (como o Google);
   - aba com o log de eventos.
-- **Mapa de conexões (visual):** o Núcleo Polaris no centro, com linhas luminosas ligando cada integração conectada. Integrações com erro aparecem em vermelho, e desativadas ficam apagadas.
+- O antigo **mapa de conexões** (Núcleo no centro com linhas até cada integração) foi removido a pedido do usuário: não ficou bom visualmente.
 
 ### Catálogo de integrações
 
@@ -569,7 +569,7 @@ Todas as tabelas têm `id` (UUID em texto), `created_at` e `updated_at` (ISO 860
 ### Etapa 3 — Hub de Integrações
 
 - Contrato, registry, `integrationService`, criptografia, cache, logs, agendador e endpoints da seção 7.
-- Página Integrações completa: categorias, filtros, cards, gaveta de configuração gerada do schema, testar, sincronizar, logs, mapa de conexões e cards EM BREVE.
+- Página Integrações completa: categorias, filtros, cards, gaveta de configuração gerada do schema, testar, sincronizar, logs e cards EM BREVE.
 - Primeiras integrações: **Open-Meteo**, **RSS** e **Open Library**.
 - **Pronto quando:** dá para configurar a cidade, testar a conexão, ver o status CONECTADO e o log, e desativar e reativar.
 

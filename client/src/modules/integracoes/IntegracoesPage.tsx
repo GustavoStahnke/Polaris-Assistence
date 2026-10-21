@@ -9,7 +9,6 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { Tabs } from '../../components/ui/Tabs';
 import { toast } from '../../stores/toastStore';
 import { useIntegrations, useSyncAll } from './api';
-import { ConnectionMap } from './ConnectionMap';
 import { IntegrationCard } from './IntegrationCard';
 import { IntegrationDrawer } from './IntegrationDrawer';
 
@@ -91,10 +90,8 @@ export function IntegracoesPage() {
         />
       ) : (
         <>
-          <ConnectionMap integrations={list} />
-
           <Tabs
-            className="my-6 w-fit max-w-full"
+            className="mb-6 w-fit max-w-full"
             value={filter}
             onChange={setFilter}
             tabs={[
