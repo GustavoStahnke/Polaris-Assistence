@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { apiNotFound } from '../lib/http';
+import { alertsRouter } from './alerts';
 import { backupsRouter } from './backups';
 import { gymRouter } from './gym';
 import { healthRouter } from './health';
@@ -8,6 +9,7 @@ import { libraryRouter } from './library';
 import { newsRouter } from './news';
 import { settingsRouter } from './settings';
 import { systemRouter } from './system';
+import { weatherRouter } from './weather';
 
 /** Todas as rotas da API, montadas em /api. */
 export function createApiRouter() {
@@ -20,6 +22,8 @@ export function createApiRouter() {
   api.use('/news', newsRouter);
   api.use('/gym', gymRouter);
   api.use('/library', libraryRouter);
+  api.use('/weather', weatherRouter);
+  api.use('/alerts', alertsRouter);
   api.use(apiNotFound);
   return api;
 }

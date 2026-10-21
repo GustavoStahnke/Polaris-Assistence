@@ -47,3 +47,40 @@ export interface NewsFeedValidation {
   items: number;
   message: string;
 }
+
+/** Notícia com o estado do usuário (lida / salva). */
+export interface NewsItemView extends NewsItem {
+  read: boolean;
+  saved: boolean;
+}
+
+export interface NewsResponse {
+  state: 'ok' | 'stale' | 'error' | 'not_configured' | 'disabled';
+  error: string | null;
+  fetchedAt: string | null;
+  categories: string[];
+  items: NewsItemView[];
+}
+
+export interface SavedArticle {
+  id: string;
+  link: string;
+  title: string;
+  source: string | null;
+  category: string | null;
+  imageUrl: string | null;
+  summary: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+}
+
+export const saveArticleSchema = z.object({
+  link: z.url(),
+  title: z.string().trim().min(1).max(500),
+  source: z.string().max(200).nullish(),
+  category: z.string().max(60).nullish(),
+  imageUrl: z.string().max(2000).nullish(),
+  summary: z.string().max(2000).nullish(),
+  publishedAt: z.string().nullish(),
+});
+export type SaveArticleInput = z.infer<typeof saveArticleSchema>;

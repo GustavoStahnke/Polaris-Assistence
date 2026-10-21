@@ -94,3 +94,20 @@ export function describeWeather(code: number, isDay = true): { label: string; ic
 /** Códigos que indicam chuva (garoa, chuva, pancadas ou trovoada). */
 export const isRainCode = (code: number) =>
   (code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95;
+
+export interface WeatherResponse {
+  state: 'ok' | 'stale' | 'error' | 'not_configured' | 'disabled';
+  error: string | null;
+  fetchedAt: string | null;
+  weather: WeatherData | null;
+  alerts: WeatherAlert[];
+}
+
+/** Alerta exibido no topo do Painel (clima, agenda, e-mails...). */
+export interface DashboardAlert {
+  id: string;
+  source: 'clima' | 'agenda' | 'email' | 'tarefas';
+  message: string;
+  severity: 'info' | 'warning';
+  to: string;
+}

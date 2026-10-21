@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { CalendarDays, CheckSquare, CloudSun, Mail, Newspaper, Target } from 'lucide-react';
+import { CalendarDays, CheckSquare, Mail, Target } from 'lucide-react';
 import { Link } from 'react-router';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { capitalize, formatLongDate, greeting } from '../../lib/format';
@@ -7,6 +7,9 @@ import { useProfile } from '../../lib/hooks/useProfile';
 import { WorkoutTodayCard } from '../academia/WorkoutTodayCard';
 import { CurrentReadingCard } from '../biblioteca/CurrentReadingCard';
 import { RememberCard } from '../biblioteca/RememberCard';
+import { WeatherCard } from '../clima/WeatherCard';
+import { NewsCard } from '../noticias/NewsCard';
+import { AlertsStrip } from './AlertsStrip';
 import { NucleusPanel } from './NucleusPanel';
 
 /** Card provisório de um módulo que ainda vai ganhar dados reais no Painel. */
@@ -66,19 +69,13 @@ export function PainelPage() {
         </p>
       </div>
 
+      <AlertsStrip />
+
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <NucleusPanel summary="Seu briefing do dia aparece aqui." />
         </div>
-        <UpcomingCard
-          index={0}
-          icon={CloudSun}
-          label="Panorama · Clima"
-          title="Clima"
-          to="/clima"
-          stage={6}
-          className="lg:col-start-1 lg:row-start-1"
-        />
+        <WeatherCard index={0} className="lg:col-start-1 lg:row-start-1" />
         <UpcomingCard
           index={1}
           icon={CalendarDays}
@@ -97,15 +94,7 @@ export function PainelPage() {
           stage={8}
           className="lg:col-start-1 lg:row-start-2"
         />
-        <UpcomingCard
-          index={3}
-          icon={Newspaper}
-          label="Radar · Notícias"
-          title="Destaques"
-          to="/noticias"
-          stage={6}
-          className="lg:col-start-3 lg:row-start-2"
-        />
+        <NewsCard index={3} className="lg:col-start-3 lg:row-start-2" />
         <CurrentReadingCard index={4} />
         <WorkoutTodayCard index={5} />
         <UpcomingCard
