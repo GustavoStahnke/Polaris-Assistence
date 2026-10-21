@@ -1,0 +1,25 @@
+{
+  "name": "@polaris/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/index.ts",
+    "start": "tsx src/index.ts --production",
+    "typecheck": "tsc -p tsconfig.json",
+    "db:generate": "tsx src/scripts/comingSoon.ts db:generate",
+    "db:migrate": "tsx src/scripts/comingSoon.ts db:migrate",
+    "db:studio": "tsx src/scripts/comingSoon.ts db:studio",
+    "backup": "tsx src/scripts/backup.ts"
+  },
+  "dependencies": {
+    "@polaris/shared": "*",
+    "express": "^5.3.0",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.0.0"
+  }
+}

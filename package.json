@@ -1,0 +1,40 @@
+{
+  "name": "polaris-assistence",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Polaris Assistence — sistema pessoal tudo-em-um",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n servidor,client -c cyan,blue \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run typecheck && npm run build -w client",
+    "start": "npm run start -w server",
+    "db:generate": "npm run db:generate -w server",
+    "db:migrate": "npm run db:migrate -w server",
+    "db:studio": "npm run db:studio -w server",
+    "backup": "npm run backup -w server",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.0"
+  }
+}

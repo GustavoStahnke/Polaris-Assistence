@@ -1,0 +1,21 @@
+# Dependências
+node_modules/
+
+# Segredos e configuração local (NUNCA vão para o git)
+.env
+.env.*
+!.env.example
+
+# Dados do usuário
+data/
+backups/
+
+# Builds
+dist/
+dev-dist/
+*.tsbuildinfo
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+*.log
