@@ -11,6 +11,10 @@ import {
 import { z } from 'zod';
 import { describeError } from '../integrations/http';
 import { bookSearchSource, subjectSource } from '../integrations/open-library';
+import { completeAuthorization } from '../integrations/google/account';
+import { consumeAuthState, type GoogleAccountConfig, type GoogleTokens } from '../integrations/google/auth';
+import { eventsSource, listCalendars } from '../integrations/google/calendar';
+import { emailsSource } from '../integrations/google/gmail';
 import { downloadCover, fetchWorkDescription } from '../integrations/open-library/api';
 import { searchCities as searchCityApi } from '../integrations/open-meteo/api';
 import { weatherSource } from '../integrations/open-meteo';
@@ -33,6 +37,7 @@ import {
   saveIntegrationState,
   type IntegrationState,
 } from '../repositories/integrationsRepository';
+import { clearCachePrefix } from '../repositories/cacheRepository';
 import { decryptJson, encryptJson } from '../security/crypto';
 import { BackoffError, getOrFetch, resetFailures } from './cacheService';
 
@@ -128,7 +133,14 @@ function toView(definition: Definition): IntegrationView {
   const state = stateOf(definition);
   const config = readConfig(definition, state);
   const tokens = readTokens(state);
-  const configured = isConfigured(definition, config, tokens);
+  // Integrações que dependem de outra (ex.: Gmail → Conta Google) só ficam prontas quando ela está conectada.
+  const dependencies = (definition.dependsOn ?? [])
+    .map((id) => findIntegration(id))
+    .filter((d): d is Definition => Boolean(d))
+    .map(toView);
+  const dependencyExpired = dependencies.some((d) => d.status === 'expirada');
+  const dependenciesReady = dependencies.every((d) => d.status === 'conectada' || d.status === 'erro');
+  const configured = isConfigured(definition, config, tokens) && (dependenciesReady || dependencyExpired);
   const masked: Record<string, unknown> = { ...(config as Record<string, unknown>) };
   for (const key of secretKeys(definition)) if (masked[key]) masked[key] = SECRET_MASK;
 
@@ -147,7 +159,7 @@ function toView(definition: Definition): IntegrationView {
     canConnect: Boolean(definition.connect),
     enabled: definition.availability === 'available' && state.enabled,
     configured,
-    status: computeStatus(definition, state, configured),
+    status: dependencyExpired && state.enabled ? 'expirada' : computeStatus(definition, state, configured),
     lastSyncAt: state.lastSyncAt,
     lastTestAt: state.lastTestAt,
     lastSuccessAt: state.lastSuccessAt,
@@ -193,6 +205,11 @@ function recordFailure(id: string, action: string, error: unknown, extra: Partia
     ...extra,
   });
   log(id, 'error', action, message);
+  if (error instanceof IntegrationAuthError) {
+    for (const dependency of findIntegration(id)?.dependsOn ?? []) {
+      saveState(dependency, { needsReconnect: true, lastError: message, lastErrorAt: nowIso() });
+    }
+  }
   return message;
 }
 
@@ -521,3 +538,57 @@ export async function fetchBookDescription(workKey: string): Promise<string | nu
     return null;
   }
 }
+
+// ===== Google =====
+
+/**
+ * Retorno do login do Google (OAuth). Confere o "state" (proteção contra pedidos forjados),
+ * troca o código pelos tokens, salva tudo criptografado e limpa o estado RECONECTAR.
+ */
+export async function completeGoogleAuth(
+  code: string | undefined,
+  state: string | undefined,
+): Promise<{ ok: boolean; message: string }> {
+  if (!consumeAuthState(state)) {
+    return { ok: false, message: 'Pedido de login inválido ou expirado. Clique em Conectar de novo.' };
+  }
+  if (!code) return { ok: false, message: 'O Google não enviou o código de autorização.' };
+  const definition = requireDefinition('google-account');
+  const context = buildContext(definition);
+  try {
+    const tokens = await completeAuthorization(
+      context.config as GoogleAccountConfig,
+      context.tokens as GoogleTokens | null,
+      code,
+    );
+    context.saveTokens(tokens as Record<string, unknown>);
+    for (const id of ['google-account', 'google-calendar', 'gmail']) {
+      saveState(id, {
+        needsReconnect: false,
+        lastError: null,
+        lastErrorAt: null,
+        ...(id === 'google-account' ? { enabled: true, lastSuccessAt: nowIso() } : {}),
+      });
+    }
+    clearCachePrefix('calendar:');
+    clearCachePrefix('gmail:');
+    resetFailures();
+    const message = `Conectado como ${tokens.email}.`;
+    log('google-account', 'success', 'connect', message);
+    return { ok: true, message };
+  } catch (error) {
+    const message = recordFailure('google-account', 'connect', error);
+    return { ok: false, message };
+  }
+}
+
+/** Eventos do Google Agenda num intervalo (cache de 10 min). */
+export const getCalendarEvents = (range: { from: string; to: string }, options?: { force?: boolean }) =>
+  fromHub('google-calendar', eventsSource, range, options);
+
+/** E-mails importantes do Gmail (cache de 5 min). */
+export const getImportantEmails = (options?: { force?: boolean }) =>
+  fromHub('gmail', emailsSource, undefined, options);
+
+/** Calendários da conta (para escolher quais aparecem). */
+export const listGoogleCalendars = () => callIntegration('google-calendar', listCalendars);

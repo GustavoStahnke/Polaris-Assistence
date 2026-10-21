@@ -9,7 +9,13 @@ const env = loadEnvironment();
 const { prepareDatabase } = await import('./bootstrap');
 await prepareDatabase();
 
-// 3. Aplicação Express
+// 3. Endereços usados pelo login do Google
+const { setClientOrigin } = await import('./config/runtime');
+const { setGoogleRedirectUri } = await import('./integrations/google/auth');
+setClientOrigin(env.isProduction ? '' : 'http://localhost:5173');
+setGoogleRedirectUri(`http://localhost:${env.port}/api/integrations/google/callback`);
+
+// 4. Aplicação Express
 const { createApp } = await import('./app');
 const { startJobs } = await import('./jobs');
 const app = createApp({ serveClient: env.isProduction });

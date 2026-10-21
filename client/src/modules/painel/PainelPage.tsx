@@ -1,51 +1,17 @@
-import type { LucideIcon } from 'lucide-react';
-import { CalendarDays, Mail } from 'lucide-react';
 import { Link } from 'react-router';
-import { PolarisCard } from '../../components/ui/PolarisCard';
 import { capitalize, formatLongDate, greeting } from '../../lib/format';
 import { useProfile } from '../../lib/hooks/useProfile';
 import { WorkoutTodayCard } from '../academia/WorkoutTodayCard';
+import { AgendaCard } from '../agenda/AgendaCard';
 import { CurrentReadingCard } from '../biblioteca/CurrentReadingCard';
 import { RememberCard } from '../biblioteca/RememberCard';
 import { WeatherCard } from '../clima/WeatherCard';
+import { EmailCard } from '../email/EmailCard';
 import { HabitsTodayCard } from '../habitos/HabitsTodayCard';
 import { NewsCard } from '../noticias/NewsCard';
 import { TasksTodayCard } from '../tarefas/TasksTodayCard';
 import { AlertsStrip } from './AlertsStrip';
 import { NucleusPanel } from './NucleusPanel';
-
-/** Card provisório de um módulo que ainda vai ganhar dados reais no Painel. */
-function UpcomingCard({
-  icon,
-  label,
-  title,
-  to,
-  stage,
-  index,
-  className,
-}: {
-  icon: LucideIcon;
-  label: string;
-  title: string;
-  to: string;
-  stage: number;
-  index: number;
-  className?: string;
-}) {
-  return (
-    <PolarisCard
-      index={index}
-      icon={icon}
-      label={label}
-      title={title}
-      to={to}
-      state="empty"
-      emptyTitle="Chegando em breve"
-      emptyMessage={`Este card ganha dados reais na Etapa ${stage}.`}
-      className={className}
-    />
-  );
-}
 
 export function PainelPage() {
   const now = new Date();
@@ -78,24 +44,8 @@ export function PainelPage() {
           <NucleusPanel summary="Seu briefing do dia aparece aqui." />
         </div>
         <WeatherCard index={0} className="lg:col-start-1 lg:row-start-1" />
-        <UpcomingCard
-          index={1}
-          icon={CalendarDays}
-          label="Agenda · Hoje"
-          title="Compromissos"
-          to="/agenda"
-          stage={8}
-          className="lg:col-start-3 lg:row-start-1"
-        />
-        <UpcomingCard
-          index={2}
-          icon={Mail}
-          label="Comunicações · E-mail"
-          title="E-mails importantes"
-          to="/email"
-          stage={8}
-          className="lg:col-start-1 lg:row-start-2"
-        />
+        <AgendaCard index={1} className="lg:col-start-3 lg:row-start-1" />
+        <EmailCard index={2} className="lg:col-start-1 lg:row-start-2" />
         <NewsCard index={3} className="lg:col-start-3 lg:row-start-2" />
         <CurrentReadingCard index={4} />
         <WorkoutTodayCard index={5} />

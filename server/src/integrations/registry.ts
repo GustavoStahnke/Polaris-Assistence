@@ -1,3 +1,6 @@
+import { googleAccount } from './google/account';
+import { googleCalendar } from './google/calendar';
+import { gmailIntegration } from './google/gmail';
 import { openLibrary } from './open-library';
 import { openMeteo } from './open-meteo';
 import { rss } from './rss';
@@ -12,6 +15,9 @@ export const INTEGRATIONS: IntegrationDefinition<unknown>[] = [
   openMeteo,
   rss,
   openLibrary,
+  googleAccount,
+  googleCalendar,
+  gmailIntegration,
   ...soonIntegrations,
 ] as IntegrationDefinition<unknown>[];
 

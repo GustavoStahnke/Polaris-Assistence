@@ -1,5 +1,5 @@
 import type { IntegrationView } from '@polaris/shared';
-import { CheckCircle2, CircleAlert, FlaskConical, Info, Save, XCircle } from 'lucide-react';
+import { CheckCircle2, CircleAlert, FlaskConical, Info, Plug, Save, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -89,6 +89,20 @@ function DrawerContent({ integration }: { integration: IntegrationView }) {
                 onClick={() => update.mutate({ id: integration.id, config: values })}
               >
                 Salvar
+              </Button>
+            )}
+            {integration.canConnect && (
+              <Button
+                variant={integration.account && integration.status !== 'expirada' ? 'outline' : 'primary'}
+                icon={Plug}
+                loading={action.isPending && action.variables?.action === 'connect'}
+                onClick={() => action.mutate({ id: integration.id, action: 'connect' })}
+              >
+                {integration.status === 'expirada'
+                  ? 'Reconectar'
+                  : integration.account
+                    ? 'Trocar de conta'
+                    : 'Conectar com Google'}
               </Button>
             )}
             <Button

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { apiNotFound } from '../lib/http';
 import { alertsRouter } from './alerts';
 import { backupsRouter } from './backups';
+import { agendaRouter, emailRouter } from './google';
 import { gymRouter } from './gym';
 import { healthRouter } from './health';
 import { integrationsRouter } from './integrations';
@@ -30,6 +31,8 @@ export function createApiRouter() {
   api.use('/reminders', remindersRouter);
   api.use('/habits', habitsRouter);
   api.use('/search', searchRouter);
+  api.use('/agenda', agendaRouter);
+  api.use('/email', emailRouter);
   api.use(apiNotFound);
   return api;
 }

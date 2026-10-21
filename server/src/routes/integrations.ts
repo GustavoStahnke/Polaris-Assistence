@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { badRequest } from '../lib/http';
+import { googleReturnUrl } from './google';
 import {
+  completeGoogleAuth,
   connectIntegration,
   disconnectIntegration,
   getIntegrationView,
   listIntegrations,
+  listGoogleCalendars,
   listLogs,
   searchCities,
   syncAll,
@@ -28,6 +31,29 @@ integrationsRouter.get('/open-meteo/geocode', async (req, res) => {
   const query = String(req.query.q ?? '').trim();
   if (query.length < 2) throw badRequest('Digite pelo menos 2 letras.');
   res.json(await searchCities(query));
+});
+
+// Retorno do login do Google (OAuth). Precisa vir antes das rotas com ":id".
+integrationsRouter.get('/google/callback', async (req, res) => {
+  const error = typeof req.query.error === 'string' ? req.query.error : null;
+  if (error) {
+    res.redirect(
+      googleReturnUrl(
+        false,
+        error === 'access_denied' ? 'Você cancelou o login do Google.' : `O Google respondeu: ${error}`,
+      ),
+    );
+    return;
+  }
+  const result = await completeGoogleAuth(
+    typeof req.query.code === 'string' ? req.query.code : undefined,
+    typeof req.query.state === 'string' ? req.query.state : undefined,
+  );
+  res.redirect(googleReturnUrl(result.ok, result.message));
+});
+
+integrationsRouter.get('/google-calendar/calendars', async (_req, res) => {
+  res.json(await listGoogleCalendars());
 });
 
 integrationsRouter.get('/:id', (req, res) => {

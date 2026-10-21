@@ -1,6 +1,7 @@
 import type { IntegrationView } from '@polaris/shared';
 import type { ComponentType } from 'react';
 import { FeedListPanel } from './FeedListPanel';
+import { VipListPanel } from './VipListPanel';
 
 /** Painéis extras mostrados na gaveta de configuração (ex.: lista de feeds do RSS). */
 export const EXTRA_PANELS: Record<
@@ -8,4 +9,5 @@ export const EXTRA_PANELS: Record<
   { title: string; component: ComponentType<{ integration: IntegrationView }> }
 > = {
   'feed-list': { title: 'Feeds', component: FeedListPanel },
+  'vip-list': { title: 'VIPs', component: VipListPanel },
 };

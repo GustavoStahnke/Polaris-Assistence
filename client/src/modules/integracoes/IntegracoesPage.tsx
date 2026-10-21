@@ -1,12 +1,13 @@
 import { INTEGRATION_CATEGORY_LABELS, type IntegrationCategory, type IntegrationView } from '@polaris/shared';
 import { RefreshCw } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Tabs } from '../../components/ui/Tabs';
+import { toast } from '../../stores/toastStore';
 import { useIntegrations, useSyncAll } from './api';
 import { ConnectionMap } from './ConnectionMap';
 import { IntegrationCard } from './IntegrationCard';
@@ -46,6 +47,16 @@ export function IntegracoesPage() {
   }, [list, filter]);
 
   const openConfig = (id: string | null) => setParams(id ? { config: id } : {});
+
+  // Volta do login do Google: mostra o resultado uma vez e limpa a URL.
+  const googleResult = params.get('google');
+  const googleMessage = params.get('mensagem');
+  useEffect(() => {
+    if (!googleResult) return;
+    if (googleResult === 'ok') toast.success('Conta Google conectada', googleMessage ?? undefined);
+    else toast.error('Não foi possível conectar ao Google', googleMessage ?? undefined);
+    setParams({ config: 'google-account' }, { replace: true });
+  }, [googleResult, googleMessage, setParams]);
   let cardIndex = 0;
 
   return (
