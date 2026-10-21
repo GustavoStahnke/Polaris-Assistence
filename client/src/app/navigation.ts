@@ -39,3 +39,6 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/integracoes', label: 'Integrações', icon: Plug },
   { path: '/configuracoes', label: 'Configurações', icon: Settings },
 ];
+
+/** Espaço reservado para a barra lateral no desktop (fina ou expandida). */
+export const SIDEBAR_WIDTH = { collapsed: 'md:pl-[72px]', expanded: 'md:pl-[232px]' };

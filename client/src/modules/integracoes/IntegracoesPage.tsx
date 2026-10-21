@@ -109,12 +109,13 @@ export function IntegracoesPage() {
             <EmptyState title="Nada neste filtro" message="Tente outro filtro acima." />
           )}
 
-          {/* Grupos por categoria em colunas, para não sobrar espaço vazio. */}
-          <div className="gap-5 md:columns-2 xl:columns-3">
+          {/* Cada categoria ocupa a largura toda; os cards ficam lado a lado,
+              com a mesma largura e a mesma altura em cada linha. */}
+          <div className="space-y-6">
             {grouped.map(([category, items]) => (
-              <section key={category} className="mb-6 break-inside-avoid">
+              <section key={category}>
                 <h2 className="label-mono mb-3 text-primary">{INTEGRATION_CATEGORY_LABELS[category]}</h2>
-                <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {items.map((integration) => (
                     <IntegrationCard
                       key={integration.id}

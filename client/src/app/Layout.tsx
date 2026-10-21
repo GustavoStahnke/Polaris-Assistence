@@ -6,12 +6,14 @@ import { MobileNav } from '../components/core/MobileNav';
 import { Sidebar } from '../components/core/Sidebar';
 import { TopBar } from '../components/core/TopBar';
 import { Toaster } from '../components/ui/Toast';
+import { cn } from '../lib/cn';
 import { ChatDrawer } from '../modules/ia/ChatDrawer';
 import { useIntegrations, useIsSyncing } from '../modules/integracoes/api';
 import { ReminderWatcher } from '../modules/tarefas/ReminderWatcher';
 import { useAppearanceStore, useReducedMotion } from '../stores/uiStore';
 import { AuthGate } from './AuthGate';
 import { GlobalCommandPalette } from './GlobalCommandPalette';
+import { SIDEBAR_WIDTH } from './navigation';
 import { QuickActions } from './QuickActions';
 
 /** Estrutura de todas as páginas. No celular (modo rede local), pede o PIN antes. */
@@ -28,6 +30,7 @@ function LayoutShell() {
   const location = useLocation();
   const glow = useAppearanceStore((s) => s.glow);
   const animations = useAppearanceStore((s) => s.animations);
+  const sidebarExpanded = useAppearanceStore((s) => s.sidebarExpanded);
   const reduced = useReducedMotion();
   const integrations = useIntegrations();
   const syncing = useIsSyncing();
@@ -48,7 +51,12 @@ function LayoutShell() {
       <Background />
       <TopBar integrations={summary || undefined} />
       <Sidebar />
-      <main className="pb-28 md:pb-12 md:pl-[72px]">
+      <main
+        className={cn(
+          'pb-28 transition-[padding] duration-300 md:pb-12',
+          sidebarExpanded ? SIDEBAR_WIDTH.expanded : SIDEBAR_WIDTH.collapsed,
+        )}
+      >
         <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-8 md:py-8">
           <motion.div
             key={location.pathname}

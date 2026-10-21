@@ -41,7 +41,11 @@ interface AppearanceState {
   animations: boolean;
   /** Reduzir movimento (menos efeitos, mesmo com animações ligadas). */
   reduceMotion: boolean;
-  setAppearance: (patch: Partial<Pick<AppearanceState, 'glow' | 'animations' | 'reduceMotion'>>) => void;
+  /** Barra lateral expandida (ícones + nomes) ou fina (só ícones). */
+  sidebarExpanded: boolean;
+  setAppearance: (
+    patch: Partial<Pick<AppearanceState, 'glow' | 'animations' | 'reduceMotion' | 'sidebarExpanded'>>,
+  ) => void;
 }
 
 // Preferências de aparência ficam neste navegador (cada aparelho pode ter a sua).
@@ -51,6 +55,7 @@ export const useAppearanceStore = create<AppearanceState>()(
       glow: 1,
       animations: true,
       reduceMotion: false,
+      sidebarExpanded: false,
       setAppearance: (patch) => set(patch),
     }),
     { name: 'polaris-appearance', storage: createJSONStorage(() => localStorage) },
