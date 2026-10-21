@@ -36,8 +36,14 @@ export const router = createBrowserRouter([
         }),
       },
       {
-        path: 'academia/*',
+        path: 'academia',
         lazy: async () => ({ Component: (await import('../modules/academia/AcademiaPage')).AcademiaPage }),
+      },
+      {
+        path: 'academia/treino/:sessionId',
+        lazy: async () => ({
+          Component: (await import('../modules/academia/WorkoutSessionPage')).WorkoutSessionPage,
+        }),
       },
       {
         path: 'notas',

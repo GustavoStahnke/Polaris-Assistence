@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { apiNotFound } from '../lib/http';
 import { backupsRouter } from './backups';
+import { gymRouter } from './gym';
 import { healthRouter } from './health';
 import { integrationsRouter } from './integrations';
 import { newsRouter } from './news';
@@ -16,6 +17,7 @@ export function createApiRouter() {
   api.use('/system', systemRouter);
   api.use('/integrations', integrationsRouter);
   api.use('/news', newsRouter);
+  api.use('/gym', gymRouter);
   api.use(apiNotFound);
   return api;
 }

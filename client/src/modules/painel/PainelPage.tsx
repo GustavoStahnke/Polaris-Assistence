@@ -4,7 +4,6 @@ import {
   CalendarDays,
   CheckSquare,
   CloudSun,
-  Dumbbell,
   Lightbulb,
   Mail,
   Newspaper,
@@ -16,6 +15,7 @@ import { PolarisCard } from '../../components/ui/PolarisCard';
 import { Link } from 'react-router';
 import { capitalize, formatLongDate, greeting } from '../../lib/format';
 import { useProfile } from '../../lib/hooks/useProfile';
+import { WorkoutTodayCard } from '../academia/WorkoutTodayCard';
 import { NucleusPanel } from './NucleusPanel';
 
 // Dados fictícios só para mostrar o visual (os dados reais chegam nas próximas etapas).
@@ -168,14 +168,7 @@ export function PainelPage() {
           <p className="mt-2 text-sm text-text-dim">39% lido</p>
         </PolarisCard>
 
-        <PolarisCard
-          index={5}
-          icon={Dumbbell}
-          label="Treino · Hoje"
-          title="Ficha A — Peito e tríceps"
-          to="/academia"
-          state="loading"
-        />
+        <WorkoutTodayCard index={5} />
 
         <PolarisCard
           index={6}
