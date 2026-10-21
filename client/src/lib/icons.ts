@@ -15,6 +15,8 @@ import {
   Droplets,
   Dumbbell,
   Flame,
+  Footprints,
+  HandFist,
   HardDrive,
   HeartPulse,
   KeyRound,
@@ -22,16 +24,19 @@ import {
   Mail,
   Moon,
   Music,
+  PersonStanding,
   Plug,
+  Route,
   Rss,
   Send,
   Sparkles,
   Sun,
+  Swords,
   Target,
   TrendingUp,
 } from 'lucide-react';
 
-/** Ícones que podem ser escolhidos pelo nome (integrações, clima e hábitos). */
+/** Ícones que podem ser escolhidos pelo nome (integrações, clima, hábitos e modalidades de treino). */
 export const ICONS: Record<string, LucideIcon> = {
   Bot,
   BookOpen,
@@ -48,6 +53,8 @@ export const ICONS: Record<string, LucideIcon> = {
   Droplets,
   Dumbbell,
   Flame,
+  Footprints,
+  HandFist,
   HardDrive,
   HeartPulse,
   KeyRound,
@@ -55,11 +62,14 @@ export const ICONS: Record<string, LucideIcon> = {
   Mail,
   Moon,
   Music,
+  PersonStanding,
   Plug,
+  Route,
   Rss,
   Send,
   Sparkles,
   Sun,
+  Swords,
   Target,
   TrendingUp,
 };

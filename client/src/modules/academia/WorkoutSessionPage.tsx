@@ -1,5 +1,12 @@
-import type { FinishSessionResult, WorkoutSession, WorkoutSet } from '@polaris/shared';
-import { ArrowLeft, Check, Flag, Minus, Plus, Timer, Trash2, Trophy, X } from 'lucide-react';
+import {
+  getModality,
+  MODALITY_LIST,
+  type Exercise,
+  type FinishSessionResult,
+  type WorkoutSession,
+  type WorkoutSet,
+} from '@polaris/shared';
+import { ArrowLeft, Check, Flag, Minus, Pencil, Plus, Timer, Trash2, Trophy, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -11,10 +18,26 @@ import { Modal } from '../../components/ui/Modal';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { cn } from '../../lib/cn';
-import { formatDuration, formatLongDate, formatNumber, formatTimer } from '../../lib/format';
+import { formatDuration, formatLongDate, formatNumber, formatTime, formatTimer } from '../../lib/format';
 import { toast } from '../../stores/toastStore';
-import { useDeleteSession, useExercises, useFinishSession, useSession, useSetMutations } from './api';
-import { RecordList } from './ProgressTab';
+import { ActivityLogModal } from './ActivityLogModal';
+import {
+  useDeleteSession,
+  useExercises,
+  useFinishSession,
+  useModalityStats,
+  useSession,
+  useSetMutations,
+} from './api';
+import {
+  activityRecordLabel,
+  formatActivityRecord,
+  formatKm,
+  formatPacePerKm,
+  formatSetValue,
+  modalityIcon,
+} from './modality';
+import { RecordList } from './RecordList';
 
 /** Tela do treino: registra cada série, cronômetro de descanso e finalização. */
 export function WorkoutSessionPage() {
@@ -29,16 +52,62 @@ export function WorkoutSessionPage() {
         title="Treino não encontrado"
         action={
           <Link to="/academia" className="label-mono text-primary">
-            Voltar para a Academia
+            Voltar para o Treino
           </Link>
         }
       />
     );
   }
+  if (getModality(session.modality).kind !== 'forca') return <ActivityView session={session} />;
   return session.finishedAt ? (
     <FinishedView session={session} records={query.data?.records ?? []} />
   ) : (
     <ActiveWorkout session={session} />
+  );
+}
+
+/** Soma das repetições feitas (só exercícios medidos em repetições). */
+const totalReps = (sets: WorkoutSet[]) =>
+  sets.filter((s) => s.measure === 'reps').reduce((sum, s) => sum + s.reps, 0);
+
+/** Volume em kg na academia; total de repetições na calistenia. */
+function volumeStat(session: WorkoutSession, doneSets: WorkoutSet[]) {
+  const modality = getModality(session.modality);
+  if (modality.volumeUnit === 'reps')
+    return { label: 'Repetições', value: formatNumber(totalReps(doneSets)) };
+  const kg = doneSets.filter((s) => s.measure === 'reps').reduce((sum, s) => sum + s.weight * s.reps, 0);
+  return { label: 'Volume', value: `${formatNumber(kg)} kg` };
+}
+
+/** Lista de exercícios agrupada por modalidade (a do treino primeiro). */
+function exerciseGroups(exercises: Exercise[], first: string) {
+  const order = [...MODALITY_LIST].sort((a, b) => Number(b.id === first) - Number(a.id === first));
+  return order
+    .map((m) => ({ modality: m, items: exercises.filter((e) => e.modality === m.id) }))
+    .filter((g) => g.items.length > 0);
+}
+
+function DeleteSessionButton({ session }: { session: WorkoutSession }) {
+  const navigate = useNavigate();
+  const remove = useDeleteSession();
+  return (
+    <Button
+      variant="ghost"
+      icon={Trash2}
+      loading={remove.isPending}
+      onClick={() => {
+        if (window.confirm('Apagar este treino do histórico? Os recordes que ele bateu também saem.')) {
+          remove.mutate(session.id, {
+            onSuccess: () => {
+              toast.success('Treino apagado');
+              navigate('/academia?aba=historico');
+            },
+          });
+        }
+      }}
+    >
+      Apagar
+    </Button>
   );
 }
 
@@ -74,9 +143,10 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
   const [notes, setNotes] = useState('');
   const [result, setResult] = useState<FinishSessionResult | null>(null);
 
+  const modality = getModality(session.modality);
   const groups = useMemo(() => groupSets(session.sets), [session.sets]);
   const done = session.sets.filter((s) => s.done);
-  const volume = done.reduce((sum, s) => sum + s.weight * s.reps, 0);
+  const volume = volumeStat(session, done);
 
   const toggleDone = (set: WorkoutSet) => {
     update.mutate({ id: set.id, done: !set.done });
@@ -96,11 +166,11 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
           to="/academia"
           className="label-mono inline-flex items-center gap-1 text-text-dim hover:text-star"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Academia
+          <ArrowLeft className="h-3.5 w-3.5" /> Treino
         </Link>
       </div>
       <PageHeader
-        label="Treino · Em andamento"
+        label={`${modality.name} · Em andamento`}
         title={session.routineName ?? 'Treino'}
         actions={
           <>
@@ -130,7 +200,7 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
       <div className="mb-5 grid grid-cols-3 gap-3">
         <Stat label="Tempo" value={formatTimer(elapsed)} />
         <Stat label="Séries" value={`${done.length}/${session.sets.length}`} />
-        <Stat label="Volume" value={`${formatNumber(volume)} kg`} />
+        <Stat label={volume.label} value={volume.value} />
       </div>
 
       <div className="space-y-4">
@@ -148,8 +218,8 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
           >
             <div className="label-mono mb-1 grid grid-cols-[2.5rem_1fr_1fr_3rem_2.5rem] gap-2 px-1 text-[10px] text-text-dim">
               <span>Série</span>
-              <span>Carga (kg)</span>
-              <span>Reps</span>
+              <span>{modality.weightLabel ?? 'Carga'} (kg)</span>
+              <span>{sets[0]!.measure === 'tempo' ? 'Segundos' : 'Reps'}</span>
               <span className="text-center">Feita</span>
               <span />
             </div>
@@ -158,6 +228,7 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
                 <SetRow
                   key={set.id}
                   set={set}
+                  weightLabel={modality.weightLabel ?? 'Carga'}
                   onChange={(patch) => update.mutate({ id: set.id, ...patch })}
                   onToggle={() => toggleDone(set)}
                   onRemove={() => remove.mutate(set.id)}
@@ -184,10 +255,14 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
             className="min-w-60 flex-1"
           >
             <option value="">Adicionar outro exercício…</option>
-            {exercises.data?.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name} · {e.muscleGroup}
-              </option>
+            {exerciseGroups(exercises.data ?? [], session.modality).map(({ modality: m, items }) => (
+              <optgroup key={m.id} label={m.name}>
+                {items.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name} · {e.muscleGroup}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </Select>
           <Button
@@ -228,7 +303,8 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
         }
       >
         <p className="mb-3 text-sm text-text-dim">
-          {done.length} séries feitas · {formatNumber(volume)} kg de volume · {formatDuration(elapsed)}
+          {done.length} séries feitas · {volume.value}{' '}
+          {volume.label === 'Volume' ? 'de volume' : 'repetições'} · {formatDuration(elapsed)}
         </p>
         <Textarea
           rows={3}
@@ -244,7 +320,12 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <Stat label="Duração" value={formatDuration(result.session.durationSeconds ?? 0)} />
-              <Stat label="Volume total" value={`${formatNumber(result.session.totalVolume ?? 0)} kg`} />
+              <Stat
+                {...volumeStat(
+                  result.session,
+                  result.session.sets.filter((s) => s.done),
+                )}
+              />
             </div>
             {result.newRecords.length > 0 ? (
               <div>
@@ -259,7 +340,7 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
               </p>
             )}
             <Button variant="primary" className="w-full justify-center" onClick={() => navigate('/academia')}>
-              Voltar para a Academia
+              Voltar para o Treino
             </Button>
           </div>
         )}
@@ -270,11 +351,13 @@ function ActiveWorkout({ session }: { session: WorkoutSession }) {
 
 function SetRow({
   set,
+  weightLabel,
   onChange,
   onToggle,
   onRemove,
 }: {
   set: WorkoutSet;
+  weightLabel: string;
   onChange: (patch: { weight?: number; reps?: number }) => void;
   onToggle: () => void;
   onRemove: () => void;
@@ -302,7 +385,7 @@ function SetRow({
     >
       <span className="text-center font-mono text-sm text-primary">{set.setNumber}</span>
       <input
-        aria-label={`Carga da série ${set.setNumber}`}
+        aria-label={`${weightLabel} da série ${set.setNumber}`}
         className={inputClass}
         type="number"
         inputMode="decimal"
@@ -313,7 +396,7 @@ function SetRow({
         onBlur={commit}
       />
       <input
-        aria-label={`Repetições da série ${set.setNumber}`}
+        aria-label={`${set.measure === 'tempo' ? 'Segundos' : 'Repetições'} da série ${set.setNumber}`}
         className={inputClass}
         type="number"
         inputMode="numeric"
@@ -449,6 +532,7 @@ function FinishedView({
   records: FinishSessionResult['newRecords'];
 }) {
   const groups = groupSets(session.sets.filter((s) => s.done));
+  const modality = getModality(session.modality);
   return (
     <>
       <div className="mb-2">
@@ -460,13 +544,19 @@ function FinishedView({
         </Link>
       </div>
       <PageHeader
-        label={`Treino · ${formatLongDate(session.startedAt)}`}
+        label={`${modality.name} · ${formatLongDate(session.startedAt)}`}
         title={session.routineName ?? 'Treino'}
+        actions={<DeleteSessionButton session={session} />}
       />
       <div className="mb-5 grid grid-cols-3 gap-3">
         <Stat label="Duração" value={formatDuration(session.durationSeconds ?? 0)} />
         <Stat label="Séries" value={String(session.sets.filter((s) => s.done).length)} />
-        <Stat label="Volume" value={`${formatNumber(session.totalVolume ?? 0)} kg`} />
+        <Stat
+          {...volumeStat(
+            session,
+            session.sets.filter((s) => s.done),
+          )}
+        />
       </div>
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
         <div className="space-y-4">
@@ -480,7 +570,7 @@ function FinishedView({
               <ul className="flex flex-wrap gap-2">
                 {sets.map((s) => (
                   <li key={s.id} className="rounded-lg border border-border px-3 py-1.5 font-mono text-sm">
-                    {s.weight} kg × {s.reps}
+                    {formatSetValue(s)}
                   </li>
                 ))}
               </ul>
@@ -492,6 +582,101 @@ function FinishedView({
           <RecordList records={records} />
         </PolarisCard>
       </div>
+    </>
+  );
+}
+
+/** Detalhes de um treino de corrida, caminhada ou luta, com editar e apagar. */
+function ActivityView({ session }: { session: WorkoutSession }) {
+  const modality = getModality(session.modality);
+  const Icon = modalityIcon(session.modality);
+  const stats = useModalityStats(session.modality);
+  const [editing, setEditing] = useState(false);
+  const records = (stats.data?.records ?? []).filter((r) => r.sessionId === session.id);
+  const duration = session.durationSeconds ?? 0;
+
+  const items: Array<{ label: string; value: string }> = [];
+  if (modality.kind === 'distancia') {
+    if (session.distanceKm) items.push({ label: 'Distância', value: formatKm(session.distanceKm) });
+    items.push({ label: 'Tempo', value: formatDuration(duration) });
+    if (session.distanceKm) {
+      items.push({ label: 'Pace', value: formatPacePerKm(duration / session.distanceKm) });
+      items.push({
+        label: 'Velocidade',
+        value: `${formatNumber(session.distanceKm / (duration / 3600), 1)} km/h`,
+      });
+    }
+    if (session.avgHeartRate) items.push({ label: 'FC média', value: `${session.avgHeartRate} bpm` });
+  } else {
+    items.push({ label: 'Duração', value: formatDuration(duration) });
+    if (session.rounds)
+      items.push({ label: modality.roundsLabel ?? 'Rounds', value: String(session.rounds) });
+  }
+  if (session.intensity) items.push({ label: 'Intensidade', value: `${session.intensity}/10` });
+
+  return (
+    <>
+      <div className="mb-2">
+        <Link
+          to="/academia?aba=historico"
+          className="label-mono inline-flex items-center gap-1 text-text-dim hover:text-star"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Histórico
+        </Link>
+      </div>
+      <PageHeader
+        label={`${modality.name} · ${formatLongDate(session.startedAt)}`}
+        title={session.routineName ?? modality.name}
+        actions={
+          <>
+            <DeleteSessionButton session={session} />
+            <Button variant="primary" icon={Pencil} onClick={() => setEditing(true)}>
+              Editar
+            </Button>
+          </>
+        }
+      />
+      <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {items.map((item) => (
+          <Stat key={item.label} {...item} />
+        ))}
+      </div>
+      <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+        <PolarisCard
+          icon={Icon}
+          label={`${modality.name} · Treino`}
+          title={session.sessionType ?? 'Como foi'}
+          footer={`Início às ${formatTime(session.startedAt)}`}
+        >
+          {session.notes ? (
+            <p className="text-sm whitespace-pre-line text-text-dim">{session.notes}</p>
+          ) : (
+            <p className="text-sm text-text-faint">
+              Sem notas. Use “Editar” para anotar técnicas e sensações.
+            </p>
+          )}
+        </PolarisCard>
+        <PolarisCard icon={Trophy} label={`${modality.name} · Recordes`} title="Recordes neste treino">
+          {records.length === 0 ? (
+            <p className="text-sm text-text-dim">Nenhum recorde neste treino.</p>
+          ) : (
+            <ul className="flex flex-wrap gap-2">
+              {records.map((r) => (
+                <li key={r.type}>
+                  <Badge tone="star">
+                    <Trophy className="h-3 w-3" /> {activityRecordLabel(r.type, session.modality)} ·{' '}
+                    {formatActivityRecord(r)}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </PolarisCard>
+      </div>
+      <ActivityLogModal
+        target={editing ? { modality: session.modality, session } : null}
+        onClose={() => setEditing(false)}
+      />
     </>
   );
 }

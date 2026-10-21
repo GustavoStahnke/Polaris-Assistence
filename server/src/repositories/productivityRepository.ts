@@ -311,7 +311,12 @@ export function searchTasksByText(query: string, limit = 5) {
 export function searchExercisesByText(query: string, limit = 5) {
   const q = `%${query}%`;
   return db
-    .select({ id: exercises.id, name: exercises.name, muscleGroup: exercises.muscleGroup })
+    .select({
+      id: exercises.id,
+      name: exercises.name,
+      muscleGroup: exercises.muscleGroup,
+      modality: exercises.modality,
+    })
     .from(exercises)
     .where(like(exercises.name, q))
     .limit(limit)

@@ -1,4 +1,12 @@
-import { describeWeather, displayName, toDateKey, type Briefing } from '@polaris/shared';
+import {
+  describeWeather,
+  displayName,
+  getModality,
+  toDateKey,
+  type Briefing,
+  type Routine,
+  type WorkoutSessionSummary,
+} from '@polaris/shared';
 import { getAgenda } from './agendaService';
 import { getEmails } from './emailService';
 import { getToday as getWorkoutToday } from './gymService';
@@ -10,6 +18,12 @@ import { getWeatherReport } from './weatherService';
 import { formatHour } from './textFormat';
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+/** "Ficha A (Academia)" ou "Muay Thai" quando o nome já é o da modalidade. */
+function workoutLabel(item: Pick<Routine | WorkoutSessionSummary, 'modality'> & { name: string | null }) {
+  const modality = getModality(item.modality).name;
+  return !item.name || item.name === modality ? modality : `${item.name} (${modality})`;
+}
 
 /** Coleta o dia inteiro. Cada fonte é independente: se uma falhar, as outras seguem. */
 async function collectDay(now: Date) {
@@ -69,8 +83,9 @@ export async function getBriefing(now: Date = new Date()): Promise<Briefing> {
   }
   const tasks = day.tasks?.tasks.length ?? 0;
   if (tasks) parts.push({ key: 'tarefas', label: plural(tasks, 'tarefa', 'tarefas'), to: '/tarefas' });
-  if (day.workout?.planned.length && !day.workout.doneToday)
-    parts.push({ key: 'treino', label: `treino: ${day.workout.planned[0]!.name}`, to: '/academia' });
+  const nextWorkout = day.workout?.planned[0];
+  if (nextWorkout && !day.workout?.activeSession)
+    parts.push({ key: 'treino', label: `treino: ${nextWorkout.name}`, to: '/academia' });
 
   return {
     sentence: parts.length
@@ -131,10 +146,13 @@ export async function getBriefingContext(now: Date = new Date()): Promise<string
     );
   }
   if (day.workout) {
-    if (day.workout.doneToday) lines.push(`Treino: já treinou hoje (${day.workout.doneToday.routineName}).`);
-    else if (day.workout.planned.length)
-      lines.push(`Treino planejado para hoje: ${day.workout.planned.map((r) => r.name).join(', ')}.`);
-    else lines.push('Treino: nenhum planejado para hoje (dia de descanso).');
+    const done = day.workout.doneToday.map((s) => workoutLabel({ ...s, name: s.routineName }));
+    if (done.length) lines.push(`Treinos feitos hoje: ${done.join(', ')}.`);
+    if (day.workout.planned.length)
+      lines.push(
+        `Treino planejado para hoje (ainda não feito): ${day.workout.planned.map(workoutLabel).join(', ')}.`,
+      );
+    else if (!done.length) lines.push('Treino: nenhum planejado para hoje (dia de descanso).');
   }
   if (day.habits?.length) {
     const done = day.habits.filter((h) => h.doneToday).map((h) => h.name);

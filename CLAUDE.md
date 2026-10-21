@@ -392,7 +392,7 @@ A tela inicial. Mostra tudo o que importa hoje, num relance:
   - **E-mails importantes:** quantidade e os 3 principais.
   - **Radar de notícias:** um destaque com imagem e uma lista curta.
   - **Leitura atual:** capa, barra de progresso e botão "+ páginas".
-  - **Treino de hoje:** ficha planejada e botão "Iniciar treino".
+  - **Treino de hoje:** ficha ou plano do dia (qualquer modalidade) e botão "Iniciar treino" ou "Registrar treino".
   - **Hábitos de hoje:** checklist rápido.
   - **Tarefas e lembretes do dia.**
   - **Relembrar:** 2 anotações antigas de livros escolhidas ao acaso (revisão espaçada simples).
@@ -456,23 +456,35 @@ A tela inicial. Mostra tudo o que importa hoje, num relance:
 - Avaliação de 1 a 5 estrelas e datas de início e fim.
 - **Estatísticas:** livros por ano, páginas lidas, gêneros e autores mais lidos.
 
-### 8.7 Academia (`/academia`)
+### 8.7 Treino (`/academia`)
 
-- **Catálogo de exercícios** com grupo muscular e equipamento. O seed traz os exercícios mais comuns em português.
-- **Fichas de treino** (A, B, C...):
-  - exercícios na ordem;
-  - séries e repetições alvo;
+A pedido do usuário, o antigo módulo Academia virou **Treino**, com várias modalidades. A rota continua `/academia`.
+
+- **Modalidades** (catálogo em `shared/src/modalities.ts`; para adicionar uma nova, basta incluir um item na lista):
+  - **Força**, com fichas e séries: Academia e Calistenia;
+  - **Cardio**, com distância, tempo e pace: Corrida e Caminhada;
+  - **Lutas e aulas**, com duração, rounds, intensidade e notas: Muay Thai e Jiu-Jitsu.
+  - Na aba **Modalidades**, o usuário ativa só as que pratica (padrão: todas). Desativar só esconde; nada é apagado.
+- **Catálogo de exercícios** (modalidades de força) com grupo muscular, equipamento e medida da série: repetições ou segundos (isometrias, como prancha e L-sit). O seed traz os mais comuns em português, por modalidade.
+- **Planos** (aba "Planos"):
+  - força: fichas A, B, C... com exercícios na ordem, séries, repetições (ou segundos), carga ou lastro e descanso;
+  - outras modalidades: plano com tipo de treino (ex.: "Rodagem leve", "Aula com kimono") e metas de duração e distância;
   - dias da semana planejados.
-- **Sessão de treino:**
-  - "Iniciar treino" abre a ficha do dia;
-  - registra cada série (carga em kg, repetições, feita ou não);
+- **Sessão de força:**
+  - "Iniciar treino" abre a ficha do dia (ou um treino livre na modalidade escolhida);
+  - registra cada série (carga ou lastro em kg, repetições ou segundos, feita ou não);
   - cronômetro de descanso configurável e notas;
-  - ao finalizar, mostra duração e volume total.
-- **Histórico:** calendário de treinos e lista de sessões.
-- **Evolução:**
-  - gráfico por exercício (carga máxima, volume, 1RM estimado pela fórmula de Epley);
-  - **recordes pessoais** destacados com um efeito de brilho.
+  - ao finalizar, mostra duração e volume total (kg na academia, repetições na calistenia).
+- **Registro de corrida, caminhada e lutas:** formulário "Registrar treino" com data, início, duração, distância (com pace ao vivo), rounds/rolas, tipo de treino, intensidade de 1 a 10, FC média e notas. Dá para editar e apagar depois.
+- **Hoje:** planos do dia de todas as modalidades ativas, treinos já feitos, atalhos para começar qualquer modalidade e o ritmo da semana por modalidade.
+- **Histórico:** calendário de treinos e lista, com filtro por modalidade. Treinos podem ser apagados (os recordes que eles bateram saem junto).
+- **Evolução** (por modalidade):
+  - força: gráfico por exercício (carga máxima, volume, 1RM estimado pela fórmula de Epley; repetições ou segundos nos exercícios só com o peso do corpo);
+  - cardio: km por semana, pace por treino, totais e tipos de treino;
+  - lutas: minutos por semana, totais, rounds e tipos de treino;
+  - **recordes pessoais** destacados com um efeito de brilho (inclusive maior distância, melhor pace, treino mais longo e mais rounds).
 - **Peso corporal e medidas (opcional),** com gráfico.
+- Registrar qualquer treino marca o hábito "Treino" no dia dele. A paleta Ctrl+K tem "Iniciar treino" e "Registrar <modalidade>".
 
 ### 8.8 Notas — segundo cérebro (`/notas`)
 
@@ -518,10 +530,11 @@ Este é o ponto de partida. O Claude Code pode ajustar, desde que siga as regras
 
 - **Sistema:** `settings`, `integrations`, `integration_logs`, `cache_entries`
 - **Biblioteca:** `books`, `reading_sessions`, `book_notes`, `book_idea_summaries`, `reading_goals`, `book_recommendations`
-- **Academia:**
+- **Treino:**
   - `exercises`, `workout_routines`, `routine_exercises`;
   - `workout_sessions`, `workout_sets`;
   - `personal_records`, `body_measurements`.
+  - Exercícios, fichas e sessões têm a coluna `modality`. As sessões das modalidades sem séries guardam distância, rounds, intensidade e FC média na própria `workout_sessions`. As modalidades ativas ficam em `settings` (chave `fitness`).
 - **Produtividade:** `notes` (+ índice FTS), `tasks`, `reminders`, `habits`, `habit_logs`
 - **Notícias e e-mail:**
   - `news_feeds`, `saved_articles`, `read_articles`;
@@ -645,6 +658,11 @@ Todas as tabelas têm `id` (UUID em texto), `created_at` e `updated_at` (ISO 860
 - **Novas integrações:** Spotify, relógio ou Google Fit, Telegram, Google Drive (backup), casa inteligente.
 - **Modos de personalidade da Polaris:** formal, amiga, mentora.
 - **Revisão espaçada avançada** das anotações, no estilo flashcards.
+- **Treino:**
+  - novas modalidades aos poucos (ciclismo, natação, yoga, boxe...);
+  - graduação (faixa e graus) no Jiu-Jitsu e no Muay Thai;
+  - cronômetro ao vivo para corrida e lutas (hoje o registro é feito depois do treino);
+  - importar corridas e caminhadas do relógio (junto com a integração Google Fit).
 
 ---
 

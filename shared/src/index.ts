@@ -3,6 +3,7 @@ import './zod';
 
 export * from './config';
 export * from './enums';
+export * from './modalities';
 export * from './schemas/ai';
 export * from './schemas/books';
 export * from './schemas/gym';

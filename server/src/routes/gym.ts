@@ -1,8 +1,15 @@
 import { Router } from 'express';
 import * as gym from '../services/gymService';
 
-// Rotas da Academia (finas: recebem, chamam o service e respondem).
+// Rotas do Treino (finas: recebem, chamam o service e respondem).
 export const gymRouter = Router();
+
+gymRouter.get('/settings', (_req, res) => {
+  res.json(gym.getFitnessSettings());
+});
+gymRouter.put('/settings', (req, res) => {
+  res.json(gym.updateFitnessSettings(req.body));
+});
 
 gymRouter.get('/exercises', (_req, res) => {
   res.json(gym.listExercises());
@@ -42,6 +49,7 @@ gymRouter.get('/sessions', (req, res) => {
       from: typeof req.query.from === 'string' ? req.query.from : undefined,
       to: typeof req.query.to === 'string' ? req.query.to : undefined,
       limit: req.query.limit ? Number(req.query.limit) : undefined,
+      modality: typeof req.query.modality === 'string' ? req.query.modality : undefined,
     }),
   );
 });
@@ -63,6 +71,17 @@ gymRouter.post('/sessions/:id/finish', (req, res) => {
 gymRouter.delete('/sessions/:id', (req, res) => {
   gym.deleteSession(req.params.id);
   res.status(204).end();
+});
+
+// Corrida, caminhada e lutas: registro pelo formulário.
+gymRouter.post('/activities', (req, res) => {
+  res.status(201).json(gym.logActivity(req.body));
+});
+gymRouter.put('/activities/:id', (req, res) => {
+  res.json(gym.updateActivity(req.params.id, req.body));
+});
+gymRouter.get('/modalities/:id/stats', (req, res) => {
+  res.json(gym.getModalityStats(req.params.id));
 });
 
 gymRouter.patch('/sets/:id', (req, res) => {

@@ -1,22 +1,51 @@
-import type {
-  BodyMeasurement,
-  BodyMeasurementInput,
-  Exercise,
-  ExerciseInput,
-  ExerciseProgress,
-  FinishSessionResult,
-  PersonalRecord,
-  Routine,
-  RoutineInput,
-  TodayWorkout,
-  WorkoutSession,
-  WorkoutSessionSummary,
+import {
+  getModality,
+  MODALITY_IDS,
+  MODALITY_LIST,
+  type ActivityInput,
+  type ActivityLogResult,
+  type BodyMeasurement,
+  type BodyMeasurementInput,
+  type Exercise,
+  type ExerciseInput,
+  type ExerciseProgress,
+  type FinishSessionResult,
+  type FitnessSettings,
+  type Modality,
+  type ModalityId,
+  type ModalityStats,
+  type PersonalRecord,
+  type Routine,
+  type RoutineInput,
+  type TodayWorkout,
+  type WorkoutSession,
+  type WorkoutSessionSummary,
 } from '@polaris/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { api, errorMessage } from '../../lib/api';
 import { toast } from '../../stores/toastStore';
 
 const GYM = ['gym'] as const;
+
+export const useFitnessSettings = () =>
+  useQuery({ queryKey: [...GYM, 'settings'], queryFn: () => api.get<FitnessSettings>('/gym/settings') });
+
+/** Modalidades que o usuário pratica, na ordem do catálogo (todas, enquanto carrega). */
+export function useEnabledModalities(): Modality[] {
+  const settings = useFitnessSettings();
+  return useMemo(() => {
+    const enabled = new Set<string>(settings.data?.modalities ?? MODALITY_IDS);
+    return MODALITY_LIST.filter((m) => enabled.has(m.id));
+  }, [settings.data]);
+}
+
+export const useModalityStats = (modality: ModalityId | null) =>
+  useQuery({
+    queryKey: [...GYM, 'stats', modality],
+    queryFn: () => api.get<ModalityStats>(`/gym/modalities/${modality}/stats`),
+    enabled: Boolean(modality) && getModality(modality).kind !== 'forca',
+  });
 
 export const useExercises = () =>
   useQuery({ queryKey: [...GYM, 'exercises'], queryFn: () => api.get<Exercise[]>('/gym/exercises') });
@@ -74,9 +103,22 @@ export const useSaveRoutine = () =>
 export const useDeleteRoutine = () =>
   useGymMutation((id: string) => api.delete(`/gym/routines/${id}`), 'Ficha apagada');
 
+export const useSaveFitnessSettings = () =>
+  useGymMutation((input: FitnessSettings) => api.put<FitnessSettings>('/gym/settings', input));
+
 export const useStartSession = () =>
-  useGymMutation((routineId: string | null) => api.post<WorkoutSession>('/gym/sessions', { routineId }));
+  useGymMutation((input: { routineId: string | null; modality?: ModalityId }) =>
+    api.post<WorkoutSession>('/gym/sessions', input),
+  );
 export const useDeleteSession = () => useGymMutation((id: string) => api.delete(`/gym/sessions/${id}`));
+
+/** Registra (ou corrige) um treino de corrida, caminhada ou luta. */
+export const useSaveActivity = () =>
+  useGymMutation(({ id, ...input }: ActivityInput & { id?: string }) =>
+    id
+      ? api.put<ActivityLogResult>(`/gym/activities/${id}`, input)
+      : api.post<ActivityLogResult>('/gym/activities', input),
+  );
 export const useFinishSession = () =>
   useGymMutation(({ id, notes }: { id: string; notes?: string }) =>
     api.post<FinishSessionResult>(`/gym/sessions/${id}/finish`, { notes }),

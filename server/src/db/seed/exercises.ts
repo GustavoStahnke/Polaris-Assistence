@@ -1,5 +1,14 @@
+import type { ExerciseMeasure, ModalityId } from '@polaris/shared';
+
+interface SeedExercise {
+  name: string;
+  muscleGroup: string;
+  equipment: string;
+  measure?: ExerciseMeasure;
+}
+
 // Exercícios mais comuns, em português, para o catálogo inicial da Academia.
-export const SEED_EXERCISES: Array<{ name: string; muscleGroup: string; equipment: string }> = [
+const ACADEMIA: SeedExercise[] = [
   { name: 'Supino reto', muscleGroup: 'Peito', equipment: 'Barra' },
   { name: 'Supino inclinado com halteres', muscleGroup: 'Peito', equipment: 'Halteres' },
   { name: 'Supino declinado', muscleGroup: 'Peito', equipment: 'Barra' },
@@ -51,3 +60,35 @@ export const SEED_EXERCISES: Array<{ name: string; muscleGroup: string; equipmen
   { name: 'Elíptico', muscleGroup: 'Cardio', equipment: 'Máquina' },
   { name: 'Pular corda', muscleGroup: 'Cardio', equipment: 'Outro' },
 ];
+
+// Calistenia: peso do corpo. Isometrias (prancha, L-sit...) são medidas em segundos.
+const CALISTENIA: SeedExercise[] = [
+  { name: 'Flexão de braço', muscleGroup: 'Peito', equipment: 'Peso corporal' },
+  { name: 'Flexão arqueiro', muscleGroup: 'Peito', equipment: 'Peso corporal' },
+  { name: 'Flexão diamante', muscleGroup: 'Tríceps', equipment: 'Peso corporal' },
+  { name: 'Flexão pike', muscleGroup: 'Ombros', equipment: 'Peso corporal' },
+  { name: 'Flexão em parada de mão', muscleGroup: 'Ombros', equipment: 'Peso corporal' },
+  { name: 'Barra fixa pronada', muscleGroup: 'Costas', equipment: 'Barra fixa' },
+  { name: 'Barra fixa supinada', muscleGroup: 'Bíceps', equipment: 'Barra fixa' },
+  { name: 'Remada australiana', muscleGroup: 'Costas', equipment: 'Barra fixa' },
+  { name: 'Muscle-up', muscleGroup: 'Corpo inteiro', equipment: 'Barra fixa' },
+  { name: 'Mergulho nas paralelas', muscleGroup: 'Tríceps', equipment: 'Paralelas' },
+  { name: 'Mergulho no banco', muscleGroup: 'Tríceps', equipment: 'Peso corporal' },
+  { name: 'Agachamento livre', muscleGroup: 'Pernas', equipment: 'Peso corporal' },
+  { name: 'Agachamento pistol', muscleGroup: 'Pernas', equipment: 'Peso corporal' },
+  { name: 'Afundo alternado', muscleGroup: 'Pernas', equipment: 'Peso corporal' },
+  { name: 'Panturrilha unilateral', muscleGroup: 'Panturrilha', equipment: 'Peso corporal' },
+  { name: 'Elevação de pernas na barra', muscleGroup: 'Abdômen', equipment: 'Barra fixa' },
+  { name: 'Burpee', muscleGroup: 'Corpo inteiro', equipment: 'Peso corporal' },
+  { name: 'Prancha', muscleGroup: 'Abdômen', equipment: 'Peso corporal', measure: 'tempo' },
+  { name: 'Hollow body', muscleGroup: 'Abdômen', equipment: 'Peso corporal', measure: 'tempo' },
+  { name: 'L-sit', muscleGroup: 'Abdômen', equipment: 'Paralelas', measure: 'tempo' },
+  { name: 'Parada de mão na parede', muscleGroup: 'Ombros', equipment: 'Peso corporal', measure: 'tempo' },
+  { name: 'Front lever grupado', muscleGroup: 'Costas', equipment: 'Barra fixa', measure: 'tempo' },
+];
+
+/** Catálogo inicial por modalidade de força. */
+export const SEED_EXERCISES: Partial<Record<ModalityId, SeedExercise[]>> = {
+  academia: ACADEMIA,
+  calistenia: CALISTENIA,
+};

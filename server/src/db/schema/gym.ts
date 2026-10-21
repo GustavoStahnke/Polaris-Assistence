@@ -1,23 +1,36 @@
-import type { PrType } from '@polaris/shared';
+import type { ExerciseMeasure, ModalityId, PrType } from '@polaris/shared';
 import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { idColumn, timestamps } from './common';
+
+/** Modalidade do registro (academia, corrida, muay_thai...). Ver shared/src/modalities.ts. */
+const modalityColumn = () => text('modality').$type<ModalityId>().notNull().default('academia');
 
 export const exercises = sqliteTable('exercises', {
   id: idColumn(),
   name: text('name').notNull(),
+  modality: modalityColumn(),
   muscleGroup: text('muscle_group').notNull(),
   equipment: text('equipment').notNull(),
+  /** reps = repetições; tempo = segundos (isometrias). */
+  measure: text('measure').$type<ExerciseMeasure>().notNull().default('reps'),
   notes: text('notes'),
   isCustom: integer('is_custom', { mode: 'boolean' }).notNull().default(false),
   ...timestamps(),
 });
 
-/** Fichas de treino (A, B, C...). weekdays: 0 = domingo ... 6 = sábado. */
+/**
+ * Fichas de treino (A, B, C...) nas modalidades de força, ou planos nas outras
+ * (ex.: "Muay Thai — aula", com meta de duração). weekdays: 0 = domingo ... 6 = sábado.
+ */
 export const workoutRoutines = sqliteTable('workout_routines', {
   id: idColumn(),
+  modality: modalityColumn(),
   name: text('name').notNull(),
   description: text('description'),
   weekdays: text('weekdays', { mode: 'json' }).$type<number[]>().notNull().default([]),
+  sessionType: text('session_type'),
+  targetMinutes: integer('target_minutes'),
+  targetDistanceKm: real('target_distance_km'),
   sortOrder: integer('sort_order').notNull().default(0),
   archived: integer('archived', { mode: 'boolean' }).notNull().default(false),
   ...timestamps(),
@@ -48,6 +61,7 @@ export const workoutSessions = sqliteTable(
   'workout_sessions',
   {
     id: idColumn(),
+    modality: modalityColumn(),
     routineId: text('routine_id').references(() => workoutRoutines.id, { onDelete: 'set null' }),
     /** Nome da ficha no momento do treino (continua aparecendo se a ficha for apagada). */
     routineName: text('routine_name'),
@@ -55,10 +69,19 @@ export const workoutSessions = sqliteTable(
     finishedAt: text('finished_at'),
     durationSeconds: integer('duration_seconds'),
     totalVolume: real('total_volume'),
+    // Campos das modalidades sem séries (corrida, caminhada, lutas).
+    sessionType: text('session_type'),
+    distanceKm: real('distance_km'),
+    rounds: integer('rounds'),
+    intensity: integer('intensity'),
+    avgHeartRate: integer('avg_heart_rate'),
     notes: text('notes'),
     ...timestamps(),
   },
-  (t) => [index('workout_sessions_started_idx').on(t.startedAt)],
+  (t) => [
+    index('workout_sessions_started_idx').on(t.startedAt),
+    index('workout_sessions_modality_idx').on(t.modality, t.startedAt),
+  ],
 );
 
 export const workoutSets = sqliteTable(

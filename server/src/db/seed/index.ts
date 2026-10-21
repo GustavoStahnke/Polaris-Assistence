@@ -1,3 +1,4 @@
+import { getModality, type ModalityId } from '@polaris/shared';
 import { count, eq } from 'drizzle-orm';
 import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 import { db } from '../client';
@@ -22,9 +23,17 @@ const isEmpty = (table: SQLiteTable) => (db.select({ total: count() }).from(tabl
 export function runSeed(): string[] {
   const done: string[] = [];
 
-  if (isEmpty(exercises)) {
-    db.insert(exercises).values(SEED_EXERCISES).run();
-    done.push(`${SEED_EXERCISES.length} exercícios`);
+  // Por modalidade: assim uma modalidade nova ganha seus exercícios mesmo num banco já em uso.
+  for (const modality of Object.keys(SEED_EXERCISES) as ModalityId[]) {
+    const items = SEED_EXERCISES[modality] ?? [];
+    const existing =
+      db.select({ total: count() }).from(exercises).where(eq(exercises.modality, modality)).get()?.total ?? 0;
+    if (items.length && existing === 0) {
+      db.insert(exercises)
+        .values(items.map((e) => ({ ...e, modality })))
+        .run();
+      done.push(`${items.length} exercícios de ${getModality(modality).name}`);
+    }
   }
   if (isEmpty(habits)) {
     db.insert(habits).values(SEED_HABITS).run();

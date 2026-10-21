@@ -1,8 +1,10 @@
 import type {
+  ActivityFields,
   BodyMeasurement,
   BodyMeasurementInput,
   Exercise,
   ExerciseInput,
+  ModalityId,
   PersonalRecord,
   PrType,
   Routine,
@@ -28,8 +30,10 @@ import {
 const toExercise = (row: typeof exercises.$inferSelect): Exercise => ({
   id: row.id,
   name: row.name,
+  modality: row.modality,
   muscleGroup: row.muscleGroup,
   equipment: row.equipment,
+  measure: row.measure,
   notes: row.notes,
   isCustom: row.isCustom,
 });
@@ -38,7 +42,7 @@ export function listExercises(): Exercise[] {
   return db
     .select()
     .from(exercises)
-    .orderBy(asc(exercises.muscleGroup), asc(exercises.name))
+    .orderBy(asc(exercises.modality), asc(exercises.muscleGroup), asc(exercises.name))
     .all()
     .map(toExercise);
 }
@@ -91,10 +95,14 @@ function toRoutines(rows: (typeof workoutRoutines.$inferSelect)[]): Routine[] {
   const items = loadRoutineExercises(rows.map((r) => r.id));
   return rows.map((row) => ({
     id: row.id,
+    modality: row.modality,
     name: row.name,
     description: row.description,
     weekdays: row.weekdays,
     sortOrder: row.sortOrder,
+    sessionType: row.sessionType,
+    targetMinutes: row.targetMinutes,
+    targetDistanceKm: row.targetDistanceKm,
     exercises: items
       .filter(({ item }) => item.routineId === row.id)
       .map(({ item, exercise }) => ({
@@ -102,6 +110,7 @@ function toRoutines(rows: (typeof workoutRoutines.$inferSelect)[]): Routine[] {
         exerciseId: item.exerciseId,
         exerciseName: exercise.name,
         muscleGroup: exercise.muscleGroup,
+        measure: exercise.measure,
         position: item.position,
         targetSets: item.targetSets,
         targetReps: item.targetReps,
@@ -131,7 +140,15 @@ export function getRoutine(id: string): Routine | undefined {
 export function saveRoutine(id: string | null, input: RoutineInput): string {
   return db.transaction((tx) => {
     let routineId = id;
-    const data = { name: input.name, description: input.description ?? null, weekdays: input.weekdays };
+    const data = {
+      modality: input.modality,
+      name: input.name,
+      description: input.description ?? null,
+      weekdays: input.weekdays,
+      sessionType: input.sessionType ?? null,
+      targetMinutes: input.targetMinutes ?? null,
+      targetDistanceKm: input.targetDistanceKm ?? null,
+    };
     if (routineId) {
       tx.update(workoutRoutines).set(data).where(eq(workoutRoutines.id, routineId)).run();
       tx.delete(routineExercises).where(eq(routineExercises.routineId, routineId)).run();
@@ -185,6 +202,7 @@ function loadSets(sessionIds: string[], restByExercise: Map<string, number> = ne
         exerciseId: set.exerciseId,
         exerciseName: exercise.name,
         muscleGroup: exercise.muscleGroup,
+        measure: exercise.measure,
         setNumber: set.setNumber,
         weight: set.weight,
         reps: set.reps,
@@ -209,16 +227,26 @@ export function getSession(id: string): WorkoutSession | undefined {
   }
   return {
     id: row.id,
+    modality: row.modality,
     routineId: row.routineId,
     routineName: row.routineName,
     startedAt: row.startedAt,
     finishedAt: row.finishedAt,
     durationSeconds: row.durationSeconds,
     totalVolume: row.totalVolume,
+    ...activityFields(row),
     notes: row.notes,
     sets: loadSets([row.id], rest).map((s) => s.value),
   };
 }
+
+const activityFields = (row: typeof workoutSessions.$inferSelect): ActivityFields => ({
+  sessionType: row.sessionType,
+  distanceKm: row.distanceKm,
+  rounds: row.rounds,
+  intensity: row.intensity,
+  avgHeartRate: row.avgHeartRate,
+});
 
 export function getActiveSessionId(): string | undefined {
   return db
@@ -230,7 +258,7 @@ export function getActiveSessionId(): string | undefined {
 }
 
 export function createSession(
-  data: { routineId: string | null; routineName: string | null; startedAt: string },
+  data: { modality: ModalityId; routineId: string | null; routineName: string | null; startedAt: string },
   sets: Array<{ exerciseId: string; setNumber: number; weight: number; reps: number }>,
 ): string {
   return db.transaction((tx) => {
@@ -247,12 +275,21 @@ export function createSession(
   });
 }
 
+/** Grava um treino já finalizado, sem séries (corrida, caminhada, lutas). */
+export function insertFinishedSession(data: typeof workoutSessions.$inferInsert): string {
+  return db.insert(workoutSessions).values(data).returning({ id: workoutSessions.id }).get().id;
+}
+
 export function updateSession(id: string, patch: Partial<typeof workoutSessions.$inferInsert>): void {
   db.update(workoutSessions).set(patch).where(eq(workoutSessions.id, id)).run();
 }
 
+/** Apaga o treino e os recordes que ele tinha batido (os anteriores voltam a valer). */
 export function deleteSession(id: string): boolean {
-  return db.delete(workoutSessions).where(eq(workoutSessions.id, id)).run().changes > 0;
+  return db.transaction((tx) => {
+    tx.delete(personalRecords).where(eq(personalRecords.sessionId, id)).run();
+    return tx.delete(workoutSessions).where(eq(workoutSessions.id, id)).run().changes > 0;
+  });
 }
 
 export function getSetRow(id: string) {
@@ -284,11 +321,12 @@ export function lastWeightFor(exerciseId: string): number | null {
 
 /** Sessões finalizadas (mais recentes primeiro), com resumo. */
 export function listSessionSummaries(
-  options: { from?: string; to?: string; limit?: number } = {},
+  options: { from?: string; to?: string; limit?: number; modality?: ModalityId } = {},
 ): WorkoutSessionSummary[] {
   const conditions = [isNotNull(workoutSessions.finishedAt)];
   if (options.from) conditions.push(gte(workoutSessions.startedAt, options.from));
   if (options.to) conditions.push(lte(workoutSessions.startedAt, options.to));
+  if (options.modality) conditions.push(eq(workoutSessions.modality, options.modality));
   const rows = db
     .select()
     .from(workoutSessions)
@@ -303,8 +341,11 @@ export function listSessionSummaries(
           sessionId: workoutSets.sessionId,
           exerciseId: workoutSets.exerciseId,
           done: workoutSets.done,
+          reps: workoutSets.reps,
+          measure: exercises.measure,
         })
         .from(workoutSets)
+        .innerJoin(exercises, eq(exercises.id, workoutSets.exerciseId))
         .where(inArray(workoutSets.sessionId, ids))
         .all()
     : [];
@@ -319,16 +360,30 @@ export function listSessionSummaries(
     const own = sets.filter((s) => s.sessionId === row.id && s.done);
     return {
       id: row.id,
+      modality: row.modality,
+      routineId: row.routineId,
       routineName: row.routineName,
       startedAt: row.startedAt,
       finishedAt: row.finishedAt,
       durationSeconds: row.durationSeconds,
       totalVolume: row.totalVolume,
+      ...activityFields(row),
+      totalReps: own.filter((s) => s.measure === 'reps').reduce((sum, s) => sum + s.reps, 0),
       exercises: new Set(own.map((s) => s.exerciseId)).size,
       sets: own.length,
       records: records.filter((r) => r.sessionId === row.id).length,
     };
   });
+}
+
+/** Treinos finalizados de uma modalidade, do mais antigo ao mais novo (estatísticas e recordes). */
+export function listFinishedSessionRows(modality: ModalityId) {
+  return db
+    .select()
+    .from(workoutSessions)
+    .where(and(eq(workoutSessions.modality, modality), isNotNull(workoutSessions.finishedAt)))
+    .orderBy(asc(workoutSessions.startedAt))
+    .all();
 }
 
 /** Séries feitas de um exercício em sessões finalizadas (para os gráficos de evolução). */
@@ -367,20 +422,21 @@ export function insertRecord(data: typeof personalRecords.$inferInsert): string 
 /** Melhor recorde de cada tipo, por exercício. */
 export function listBestRecords(exerciseId?: string): PersonalRecord[] {
   const rows = db
-    .select({ record: personalRecords, name: exercises.name })
+    .select({ record: personalRecords, name: exercises.name, measure: exercises.measure })
     .from(personalRecords)
     .innerJoin(exercises, eq(exercises.id, personalRecords.exerciseId))
     .where(exerciseId ? eq(personalRecords.exerciseId, exerciseId) : undefined)
     .orderBy(desc(personalRecords.value))
     .all();
   const best = new Map<string, PersonalRecord>();
-  for (const { record, name } of rows) {
+  for (const { record, name, measure } of rows) {
     const key = `${record.exerciseId}:${record.type}`;
     if (!best.has(key)) {
       best.set(key, {
         id: record.id,
         exerciseId: record.exerciseId,
         exerciseName: name,
+        measure,
         type: record.type,
         value: record.value,
         weight: record.weight,
@@ -394,15 +450,16 @@ export function listBestRecords(exerciseId?: string): PersonalRecord[] {
 
 export function listRecordsForSession(sessionId: string): PersonalRecord[] {
   return db
-    .select({ record: personalRecords, name: exercises.name })
+    .select({ record: personalRecords, name: exercises.name, measure: exercises.measure })
     .from(personalRecords)
     .innerJoin(exercises, eq(exercises.id, personalRecords.exerciseId))
     .where(eq(personalRecords.sessionId, sessionId))
     .all()
-    .map(({ record, name }) => ({
+    .map(({ record, name, measure }) => ({
       id: record.id,
       exerciseId: record.exerciseId,
       exerciseName: name,
+      measure,
       type: record.type,
       value: record.value,
       weight: record.weight,

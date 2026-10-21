@@ -1,4 +1,4 @@
-import type { SearchResult, SearchResultType } from '@polaris/shared';
+import { getModality, type SearchResult, type SearchResultType } from '@polaris/shared';
 import { useQuery } from '@tanstack/react-query';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -17,7 +17,8 @@ import { useNavigate } from 'react-router';
 import { CommandPalette, type PaletteCommand } from '../components/ui/CommandPalette';
 import { api } from '../lib/api';
 import { useBeginWorkout } from '../modules/academia/useBeginWorkout';
-import { useTodayWorkout } from '../modules/academia/api';
+import { useEnabledModalities, useTodayWorkout } from '../modules/academia/api';
+import { modalityIcon } from '../modules/academia/modality';
 import { useSyncAll } from '../modules/integracoes/api';
 import { useUiStore } from '../stores/uiStore';
 import { NAV_ITEMS } from './navigation';
@@ -43,6 +44,7 @@ export function GlobalCommandPalette() {
   const setQuickAction = useUiStore((s) => s.setQuickAction);
   const setChatOpen = useUiStore((s) => s.setChatOpen);
   const today = useTodayWorkout();
+  const modalities = useEnabledModalities();
   const { begin } = useBeginWorkout();
   const syncAll = useSyncAll();
   const [query, setQuery] = useState('');
@@ -61,7 +63,9 @@ export function GlobalCommandPalette() {
 
   const commands = useMemo<PaletteCommand[]>(() => {
     const active = today.data?.activeSession;
-    const planned = today.data?.planned[0];
+    // "Iniciar treino" abre uma ficha de força; as outras modalidades têm "Registrar ...".
+    const planned = today.data?.planned.find((p) => getModality(p.modality).kind === 'forca');
+    const firstStrength = modalities.find((m) => m.kind === 'forca');
     const actions: PaletteCommand[] = [
       {
         id: 'act:chat',
@@ -101,9 +105,22 @@ export function GlobalCommandPalette() {
         hint: active ? (active.routineName ?? undefined) : (planned?.name ?? 'Treino livre'),
         group: 'Ações rápidas',
         icon: Play,
-        keywords: 'academia treinar',
-        run: () => (active ? navigate(`/academia/treino/${active.id}`) : void begin(planned?.id ?? null)),
+        keywords: 'academia treinar calistenia ficha',
+        run: () =>
+          active
+            ? navigate(`/academia/treino/${active.id}`)
+            : void begin(planned?.id ?? null, planned?.modality ?? firstStrength?.id),
       },
+      ...modalities
+        .filter((m) => m.kind !== 'forca')
+        .map<PaletteCommand>((m) => ({
+          id: `act:log:${m.id}`,
+          label: `Registrar ${m.name}`,
+          group: 'Ações rápidas',
+          icon: modalityIcon(m.id),
+          keywords: 'treino registrar exercício',
+          run: () => navigate(`/academia?registrar=${m.id}`),
+        })),
       {
         id: 'act:reminder',
         label: 'Novo lembrete',
@@ -130,7 +147,7 @@ export function GlobalCommandPalette() {
       run: () => navigate(item.path),
     }));
     return [...actions, ...navigation];
-  }, [navigate, setQuickAction, setChatOpen, today.data, begin, syncAll]);
+  }, [navigate, setQuickAction, setChatOpen, today.data, modalities, begin, syncAll]);
 
   const extra = useMemo<PaletteCommand[]>(
     () =>

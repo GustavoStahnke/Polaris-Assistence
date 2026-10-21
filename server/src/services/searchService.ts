@@ -1,4 +1,4 @@
-import type { SearchResult } from '@polaris/shared';
+import { getModality, type SearchResult } from '@polaris/shared';
 import { formatInTimeZone } from './textFormat';
 import * as repo from '../repositories/productivityRepository';
 
@@ -53,7 +53,7 @@ export function searchEverything(query: string): SearchResult[] {
       type: 'exercicio',
       id: exercise.id,
       title: exercise.name,
-      subtitle: exercise.muscleGroup,
+      subtitle: `${getModality(exercise.modality).name} · ${exercise.muscleGroup}`,
       to: '/academia?aba=exercicios',
     });
   }
