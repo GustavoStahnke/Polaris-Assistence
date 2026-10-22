@@ -52,8 +52,13 @@ export const router = createBrowserRouter([
         }),
       },
       {
+        // Endereço antigo: Notas agora é uma aba de Tarefas.
         path: 'notas',
-        lazy: async () => ({ Component: (await import('../modules/notas/NotasPage')).NotasPage }),
+        loader: ({ request }) => {
+          const params = new URL(request.url).searchParams;
+          params.set('aba', 'notas');
+          return redirect(`/tarefas?${params.toString()}`);
+        },
       },
       {
         path: 'tarefas',

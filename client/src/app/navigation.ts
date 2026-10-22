@@ -9,7 +9,6 @@ import {
   Mail,
   Newspaper,
   Settings,
-  StickyNote,
   Target,
 } from 'lucide-react';
 
@@ -32,7 +31,6 @@ export const NAV_ITEMS: NavItem[] = [
   { path: '/clima', label: 'Clima', icon: CloudSun },
   { path: '/biblioteca', label: 'Biblioteca', mobileLabel: 'Livros', icon: BookOpen, mobile: true },
   { path: '/academia', label: 'Treino', mobileLabel: 'Treino', icon: Dumbbell, mobile: true },
-  { path: '/notas', label: 'Notas', icon: StickyNote },
   { path: '/tarefas', label: 'Tarefas', icon: ListTodo },
   { path: '/habitos', label: 'Hábitos', icon: Target },
   { path: '/configuracoes', label: 'Configurações', icon: Settings },

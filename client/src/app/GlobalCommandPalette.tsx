@@ -17,7 +17,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { CommandPalette, type PaletteCommand } from '../components/ui/CommandPalette';
 import { api } from '../lib/api';
-import { integrationsPath } from '../lib/paths';
+import { integrationsPath, notesPath } from '../lib/paths';
 import { useBeginWorkout } from '../modules/academia/useBeginWorkout';
 import { useEnabledModalities, useTodayWorkout } from '../modules/academia/api';
 import { modalityIcon } from '../modules/academia/modality';
@@ -156,6 +156,15 @@ export function GlobalCommandPalette() {
       icon: Plug,
       keywords: 'conexões configurações',
       run: () => navigate(integrationsPath()),
+    });
+    // Notas também saiu da barra lateral (é uma aba de Tarefas).
+    navigation.push({
+      id: 'nav:notas',
+      label: 'Ir para Notas',
+      group: 'Navegação',
+      icon: StickyNote,
+      keywords: 'segundo cérebro ideias anotações',
+      run: () => navigate(notesPath()),
     });
     return [...actions, ...navigation];
   }, [navigate, setQuickAction, setChatOpen, today.data, modalities, begin, syncAll]);

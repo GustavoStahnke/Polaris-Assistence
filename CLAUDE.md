@@ -486,8 +486,10 @@ A pedido do usuário, o antigo módulo Academia virou **Treino**, com várias mo
 - **Peso corporal e medidas (opcional),** com gráfico.
 - Registrar qualquer treino marca o hábito "Treino" no dia dele. A paleta Ctrl+K tem "Iniciar treino" e "Registrar <modalidade>".
 
-### 8.8 Notas — segundo cérebro (`/notas`)
+### 8.8 Notas — segundo cérebro (`/tarefas?aba=notas`)
 
+- A pedido do usuário, Notas virou uma aba da página Tarefas (ao lado de Lembretes) e saiu da barra lateral. Continua acessível pela paleta Ctrl+K ("Ir para Notas" e a busca global) e pelo botão "+".
+- O endereço antigo `/notas` redireciona para a aba. Os links internos usam `notesPath()` (`client/src/lib/paths.ts`).
 - Captura rápida pelo botão "+" ou pelo Ctrl+K: o usuário solta a ideia e ela fica salva.
 - Tags, notas fixadas e busca de texto completo (SQLite FTS5, isolado no repositório).
 - Ligação opcional com um livro ou uma tarefa.

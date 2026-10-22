@@ -7,3 +7,8 @@ export function integrationsPath(integrationId?: string): string {
   if (integrationId) params.set('config', integrationId);
   return `/configuracoes?${params.toString()}`;
 }
+
+/** Endereço da aba Notas (fica dentro de Tarefas). */
+export function notesPath(): string {
+  return '/tarefas?aba=notas';
+}

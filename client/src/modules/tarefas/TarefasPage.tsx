@@ -32,29 +32,32 @@ import { Field, Input, Select, Textarea } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { PolarisCard } from '../../components/ui/PolarisCard';
-import { Tabs } from '../../components/ui/Tabs';
+import { Tabs, type TabItem } from '../../components/ui/Tabs';
 import { cn } from '../../lib/cn';
 import { formatDateTime, formatRelative } from '../../lib/format';
 import { toast } from '../../stores/toastStore';
+import { NotesTab } from '../notas/NotesTab';
 import { useReminderMutations, useReminders, useTaskMutations, useTasks } from './api';
 import { PRIORITY_TONES, dueLabel } from './taskLabels';
 
+type PageTab = 'tarefas' | 'lembretes' | 'notas';
+
+const PAGE_TABS: TabItem<PageTab>[] = [
+  { id: 'tarefas', label: 'Tarefas' },
+  { id: 'lembretes', label: 'Lembretes' },
+  { id: 'notas', label: 'Notas' },
+];
+
 export function TarefasPage() {
   const [params, setParams] = useSearchParams();
-  const tab = params.get('aba') === 'lembretes' ? 'lembretes' : 'tarefas';
+  const tab = PAGE_TABS.find((t) => t.id === params.get('aba'))?.id ?? 'tarefas';
   return (
     <>
       <PageHeader label="Foco · Tarefas" title="Tarefas" />
-      <Tabs
-        className="mb-5 w-fit"
-        value={tab}
-        onChange={(id) => setParams({ aba: id })}
-        tabs={[
-          { id: 'tarefas', label: 'Tarefas' },
-          { id: 'lembretes', label: 'Lembretes' },
-        ]}
-      />
-      {tab === 'tarefas' ? <TasksTab /> : <RemindersTab />}
+      <Tabs className="mb-5 w-fit" value={tab} onChange={(id) => setParams({ aba: id })} tabs={PAGE_TABS} />
+      {tab === 'tarefas' && <TasksTab />}
+      {tab === 'lembretes' && <RemindersTab />}
+      {tab === 'notas' && <NotesTab />}
     </>
   );
 }

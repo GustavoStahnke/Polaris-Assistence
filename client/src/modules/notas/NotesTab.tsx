@@ -8,13 +8,13 @@ import { Button } from '../../components/ui/Button';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
-import { PageHeader } from '../../components/ui/PageHeader';
 import { PolarisCard } from '../../components/ui/PolarisCard';
 import { formatRelative } from '../../lib/format';
 import { useNotes } from './api';
 import { NoteForm } from './NoteForm';
 
-export function NotasPage() {
+/** Aba Notas da página Tarefas (segundo cérebro). */
+export function NotesTab() {
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [tag, setTag] = useState<string | null>(null);
@@ -23,6 +23,15 @@ export function NotasPage() {
   const list = useMemo(() => notes.data ?? [], [notes.data]);
   const openId = params.get('abrir');
   const editing = list.find((n) => n.id === openId) ?? null;
+
+  // Abre ou fecha a nota pelo endereço (?abrir=id), sem perder a aba atual.
+  const setOpenId = (id: string | null) =>
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (id) next.set('abrir', id);
+      else next.delete('abrir');
+      return next;
+    });
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(query.trim()), 300);
@@ -36,8 +45,7 @@ export function NotasPage() {
 
   return (
     <>
-      <PageHeader label="Segundo cérebro · Notas" title="Notas" />
-      <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
+      <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
         <PolarisCard
           icon={StickyNote}
           label="Notas · Captura rápida"
@@ -98,20 +106,25 @@ export function NotasPage() {
               <p className="label-mono mb-3 flex items-center gap-1.5 text-primary">
                 <Pin className="h-3.5 w-3.5" /> Fixadas
               </p>
-              <NotesGrid notes={pinned} onOpen={(id) => setParams({ abrir: id })} />
+              <NotesGrid notes={pinned} onOpen={setOpenId} />
             </section>
           )}
           {others.length > 0 && (
             <section>
               {pinned.length > 0 && <p className="label-mono mb-3 text-text-dim">Outras</p>}
-              <NotesGrid notes={others} onOpen={(id) => setParams({ abrir: id })} />
+              <NotesGrid notes={others} onOpen={setOpenId} />
             </section>
           )}
         </div>
       </div>
 
-      <Modal open={editing !== null} onClose={() => setParams({})} title="Editar nota" className="max-w-2xl">
-        {editing && <NoteForm key={editing.id} note={editing} onDone={() => setParams({})} />}
+      <Modal
+        open={editing !== null}
+        onClose={() => setOpenId(null)}
+        title="Editar nota"
+        className="max-w-2xl"
+      >
+        {editing && <NoteForm key={editing.id} note={editing} onDone={() => setOpenId(null)} />}
       </Modal>
     </>
   );

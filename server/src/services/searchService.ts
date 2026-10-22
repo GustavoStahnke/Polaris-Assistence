@@ -13,7 +13,7 @@ export function searchEverything(query: string): SearchResult[] {
       id: note.id,
       title: note.title || note.content.slice(0, 60),
       subtitle: note.snippet?.replace(/[«»]/g, '') ?? null,
-      to: `/notas?abrir=${note.id}`,
+      to: `/tarefas?aba=notas&abrir=${note.id}`,
     });
   }
   for (const book of repo.searchBooksByText(q)) {
